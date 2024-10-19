@@ -1,0 +1,6 @@
+/disc-menv
+/driver
+/__pycache__
+
+.env
+activate.ps1
