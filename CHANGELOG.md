@@ -17,6 +17,7 @@ Notable changes and additions will be logged into this file.
  
  - No longer throws an exception when using the commands (whoops)
  - Avatar is no longer included in deck list total count
+ - Selenium is now configured to work both on Windows and Ubuntu
 
 ## [1.0.1] - 2024-20-10
 

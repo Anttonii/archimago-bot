@@ -2,6 +2,7 @@ from util import *
 
 import json
 import os
+import platform
 
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
@@ -33,10 +34,14 @@ app = typer.Typer()
 
 # The webdriver chromium headless instance
 options = Options()
-options.add_argument('--headless=old')
-
-# Create a headless Chromium browser
-browser = webdriver.Chrome(options=options)
+if platform == 'Windows':
+    options.add_argument('--headless=old')
+    browser = webdriver.Chrome(options=options)
+else:
+    options.add_argument('--no-sandbox')
+    options.add_argument('--disable-dev-shm-usage')
+    options.add_argument('--headless')
+    browser = webdriver.Chrome(options=options, service=Service('/snap/bin/chromium.chromedriver'))
 
 
 def prettify_deck(deck):
