@@ -1,22 +1,32 @@
-from selenium import webdriver
+from util import *
 
+import json
+import os
+
+from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
-from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import TimeoutException, NoSuchElementException
 
 import typer
+from typing import List
+
+import chromedriver_autoinstaller
 
 # The curiosa.io base URL where deck requests are made to.
 curiosa_deck_base_url = "https://curiosa.io/decks/"
 
+# The curiosa.io API backend for getting card data.
+curiosa_api_url = "https://api.sorcerytcg.com/api/cards"
+
 # The maximum time to wait for a timeout in seconds
 maximum_wait_timeout = 3
 
-# The path to the chrome driver to use with selenium
-chromedriver_path = 'driver/chromedriver.exe'
+# Checks if chrome driver is already in path, if not installs and adds it to path.
+chromedriver_autoinstaller.install()
 
 # Typer instance
 app = typer.Typer()
@@ -26,8 +36,27 @@ options = Options()
 options.add_argument('--headless=old')
 
 # Create a headless Chromium browser
-browser = webdriver.Chrome(
-    options=options, service=Service('driver/chromedriver.exe'))
+browser = webdriver.Chrome(options=options)
+
+
+def load_cards(json_path: str = "data/cards.json"):
+    """
+    Loads cards from cards.json into memory for quick retrieval.
+    """
+    if not os.path.exists(json_path):
+        print("Could not load cards.json, make sure to download it before attempting to retrieve data from it.")
+        print("The file can be automatically downloaded with the command: python curiosa.py download")
+        return None
+
+    with open(json_path, 'r', encoding="utf-8") as json_file:
+        try:
+            data = json.load(json_file)
+        except json.JSONDecodeError:
+            print(f"Failed to load {
+                  json_path}, the file at path is an invalid JSON file.")
+            return None
+
+    return data
 
 
 def prettify_deck(deck):
@@ -36,9 +65,73 @@ def prettify_deck(deck):
     """
     output = ""
     for (k, v) in deck.items():
-        output += f"{k}{"" if k == "Avatar" else "s"}\n"
+        curr = ""
+        sum = 0
         for e in v:
-            output += f"  {e[1]} - {e[0]}\n"
+            curr += f"  {e[1]} - {e[0]}\n"
+            sum += int(e[1])
+        curr = f"{k}{"" if k == "Avatar" else "s"} ({sum})\n" + curr
+        output += curr
+    return output
+
+
+def parse_sets(sets):
+    """
+    Parses sets into a single line
+    """
+    output = ""
+    for _set in sets:
+        output += _set['name'] + ", "
+
+    return output[0:len(output) - 2]
+
+
+def parse_threshold(thresholds):
+    """
+    Parses thresholds object into a more readable form.
+
+    Example output for a card having 1 air and 1 water threshold is (A)(W)
+    """
+    output = ""
+    for (k, v) in thresholds.items():
+        if v == 0:
+            continue
+
+        output += ("(" + k[0].capitalize() + ")") * v
+    return output
+
+
+def prettify_card(card):
+    """
+    Prints a more readable version of a given card dictionary entry.
+    """
+    output = "Name: " + card['name'] + "\n"
+
+    guardian = card['guardian']
+    fields = ['rarity', 'type', 'rulesText',
+              'cost', 'attack', 'defence', 'life']
+
+    thresholds = parse_threshold(guardian['thresholds'])
+    sets = parse_sets(card['sets'])
+
+    for field in fields:
+        if guardian[field] == "" or guardian[field] == None:
+            continue
+
+        if field != "rulesText":
+            output += field.capitalize() + ": " + str(guardian[field]) + "\n"
+        else:
+            output += "Rules Text: " + str(guardian[field]) + "\n"
+
+    if thresholds != "":
+        if guardian['type'] == 'Site':
+            output += "Provided thresholds: " + thresholds + "\n"
+        else:
+            output += "Thresholds: " + thresholds + "\n"
+
+    # Assuming that sets field is never empty
+    output += "Sets: " + sets + "\n"
+
     return output
 
 
@@ -48,13 +141,12 @@ def get_card_counts(deck):
     """
     output = ""
     total_sum = 0
-    for (k, v) in deck.items():
+    for v in deck.values():
         sum = 0
         for e in v:
             sum += int(e[1])
-        output += f"{k}{"s" if sum > 1 else ""}: {sum}\n"
         total_sum += sum
-    output += f"Total of {total_sum} cards\n\n"
+    output += f"Total: {total_sum} cards\n\n"
     return output
 
 
@@ -66,7 +158,9 @@ def overlap_in_decks(*decks):
     overlapping = {}
     for deck in decks[1:len(decks)]:
         for (k, v) in deck.items():
+            # To avoid finding the same overlaps
             found_overlaps = []
+
             if k not in overlapping:
                 overlapping[k] = []
 
@@ -120,14 +214,20 @@ def request_deck(browser: webdriver.Chrome, url: str, include_maybe: bool = Fals
     Requests a deck from curiosa.io
     """
     try:
+        print(f"Retrieving deck information from URL: {url}.")
         browser.get(url)
         WebDriverWait(browser, maximum_wait_timeout).until(
             ec.presence_of_element_located((By.CSS_SELECTOR, "div > table")))
-        tables = browser.find_elements(By.TAG_NAME, "table")
-        return parse_deck_table(tables, include_maybe)
+        try:
+            tables = browser.find_elements(By.TAG_NAME, "table")
+            return parse_deck_table(tables, include_maybe)
+        except NoSuchElementException:
+            print(
+                f"Failed to retrieve element containing deck information for URL: {url}")
+            return "Unable to retrieve element containing deck information. Please check the URL."
     except TimeoutException:
         print("Request timed out.")
-        return None
+        return "Request timed out, unable to retrieve deck for URL: {url}."
 
 
 def request_deck_from_id(browser, id: str, include_maybe: bool = False):
@@ -173,9 +273,8 @@ def get_deck_from_url(browser: webdriver.Chrome, url: str, include_maybe: bool =
         output = "Check that the url is a valid one."
         return output
 
-    output += f"The deck from url: {url} has the following cards:\n"
+    output += f"The deck from url: {url} has the following cards:\n\n"
     output += prettify_deck(deck)
-    output += "\nand the following distribution:\n"
     output += get_card_counts(deck)
 
     return output
@@ -200,7 +299,6 @@ def get_deck_from_id(browser: webdriver.Chrome, id: str, include_maybe: bool = F
 
     output += f"The deck with id: {id} has the following cards:\n\n"
     output += prettify_deck(deck)
-    output += "\nand the following distribution:\n\n"
     output += get_card_counts(deck)
 
     return output
@@ -212,6 +310,54 @@ def id(id: str, include_maybe: bool = False):
     Returns a deck of cards from an ID.
     """
     print(get_deck_from_id(browser, id, include_maybe))
+
+
+def get_card_from_name(card_name: str, cards: dict = None) -> str:
+    # Load cards if a proper dictionary object is not provided
+    if cards == None:
+        cards = load_cards()
+
+    for card in cards:
+        if card['name'].lower() == card_name.lower():
+            return prettify_card(card)
+
+    return f"Could not find card by card name {card_name}."
+
+
+@app.command()
+def card(card_name: List[str]) -> str:
+    """
+    Gets a card by name and returns information associated with it.
+    """
+    print(get_card_from_name(" ".join(card_name)))
+
+
+@app.command()
+def download(output: str = 'data'):
+    """
+    Downloads card data from the official curiosa.io API and saves it into a file.
+    """
+    print(f"Retrieving sorcery card json file from {curiosa_api_url}..")
+    browser.get(curiosa_api_url)
+    try:
+        output_path = os.path.join(output, "cards.json")
+        element = browser.find_element(By.TAG_NAME, "pre")
+        content = element.text
+
+        if not is_json(content):
+            print(f"The returned element is not a valid json, can not save to file.")
+            return
+
+        if os.path.exists(output_path):
+            print("Cards.json already present, overwriting..")
+
+        with open(output_path, "w+", encoding="utf-8") as json_file:
+            json_file.write(content)
+
+        print(f"Card data succesfully downloaded and saved into: {
+              output_path}!")
+    except NoSuchElementException:
+        print(f"Unable to find json containing element, check that the URL is correct.")
 
 
 if __name__ == "__main__":

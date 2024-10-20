@@ -1,6 +1,6 @@
 /disc-menv
-/driver
 /__pycache__
+/data/cards.json
 
 .env
 activate.ps1
