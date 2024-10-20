@@ -39,21 +39,21 @@ class Curiosa(commands.Cog):
     Curiosa.io related commands
     """
     @commands.command(name="deck")
-    async def get_deck(ctx, request: str):
+    async def get_deck(self, ctx, req: str):
         """
         Gets cards belonging to a deck from a curiosa.io URL or ID.
         """
-        split_request = request.split("/")
+        split_request = req.split("/")
 
         if len(split_request) > 1:
-            received_output = get_deck_from_url(browser, request)
+            received_output = get_deck_from_url(browser, req)
         else:
-            received_output = get_deck_from_id(browser, request)
+            received_output = get_deck_from_id(browser, req)
 
         await ctx.send(code_blockify(received_output))
 
     @commands.command(name="overlap")
-    async def get_overlap(ctx, *request: str):
+    async def get_overlap(self, ctx, *request: str):
         """
         Get overlapping cards between decks having provided at least 2 deck IDs.
         """
@@ -65,7 +65,7 @@ class Curiosa(commands.Cog):
         await ctx.send(code_blockify(received_output))
 
     @commands.command(name="card")
-    async def get_card(ctx, *card_name: str):
+    async def get_card(self, ctx, *card_name: str):
         """
         Get card data by providing a card name.
         """
@@ -75,6 +75,13 @@ class Curiosa(commands.Cog):
         # Safe to assume cards is not none here since we exit if it is
         received_output = get_card_from_name(concat_name, cards)
         await ctx.send(code_blockify(received_output))
+
+    @commands.command(name="cimg")
+    async def get_card_image(self, ctx, *card_name: str):
+        # Concatenate the name so that we allow spaces in card names
+        concat_name = " ".join(card_name)
+
+        await ctx.send(generate_image_url(concat_name))
 
 
 if DISCORD_BOT_MODE == 'debug':

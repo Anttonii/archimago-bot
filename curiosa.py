@@ -39,26 +39,6 @@ options.add_argument('--headless=old')
 browser = webdriver.Chrome(options=options)
 
 
-def load_cards(json_path: str = "data/cards.json"):
-    """
-    Loads cards from cards.json into memory for quick retrieval.
-    """
-    if not os.path.exists(json_path):
-        print("Could not load cards.json, make sure to download it before attempting to retrieve data from it.")
-        print("The file can be automatically downloaded with the command: python curiosa.py download")
-        return None
-
-    with open(json_path, 'r', encoding="utf-8") as json_file:
-        try:
-            data = json.load(json_file)
-        except json.JSONDecodeError:
-            print(f"Failed to load {
-                  json_path}, the file at path is an invalid JSON file.")
-            return None
-
-    return data
-
-
 def prettify_deck(deck):
     """
     Prints a more readable version of a given deck dictionary.
@@ -72,33 +52,7 @@ def prettify_deck(deck):
             sum += int(e[1])
         curr = f"{k}{"" if k == "Avatar" else "s"} ({sum})\n" + curr
         output += curr
-    return output
-
-
-def parse_sets(sets):
-    """
-    Parses sets into a single line
-    """
-    output = ""
-    for _set in sets:
-        output += _set['name'] + ", "
-
-    return output[0:len(output) - 2]
-
-
-def parse_threshold(thresholds):
-    """
-    Parses thresholds object into a more readable form.
-
-    Example output for a card having 1 air and 1 water threshold is (A)(W)
-    """
-    output = ""
-    for (k, v) in thresholds.items():
-        if v == 0:
-            continue
-
-        output += ("(" + k[0].capitalize() + ")") * v
-    return output
+    return output + "\n"
 
 
 def prettify_card(card):
@@ -111,8 +65,8 @@ def prettify_card(card):
     fields = ['rarity', 'type', 'rulesText',
               'cost', 'attack', 'defence', 'life']
 
-    thresholds = parse_threshold(guardian['thresholds'])
-    sets = parse_sets(card['sets'])
+    thresholds = parse_threshold(guardian)
+    sets = parse_sets(card)
 
     for field in fields:
         if guardian[field] == "" or guardian[field] == None:
@@ -141,12 +95,16 @@ def get_card_counts(deck):
     """
     output = ""
     total_sum = 0
-    for v in deck.values():
+    atlas_sum = 0
+    for (k, v) in deck.items():
         sum = 0
         for e in v:
             sum += int(e[1])
+            if k == "Site":
+                atlas_sum += int(e[1])
         total_sum += sum
-    output += f"Total: {total_sum} cards\n\n"
+    output += f"Total: {total_sum} cards ({total_sum -
+                                           atlas_sum} Spellbook, {atlas_sum} Atlas)\n\n"
     return output
 
 
@@ -313,15 +271,12 @@ def id(id: str, include_maybe: bool = False):
 
 
 def get_card_from_name(card_name: str, cards: dict = None) -> str:
-    # Load cards if a proper dictionary object is not provided
-    if cards == None:
-        cards = load_cards()
+    card = get_card_entry(card_name, cards)
 
-    for card in cards:
-        if card['name'].lower() == card_name.lower():
-            return prettify_card(card)
-
-    return f"Could not find card by card name {card_name}."
+    if card == None:
+        return f"Could not find card by card name {card_name}."
+    else:
+        return prettify_card(card)
 
 
 @app.command()

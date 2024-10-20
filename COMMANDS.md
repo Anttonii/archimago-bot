@@ -2,6 +2,8 @@
 
 **NOTE:** The bot is currently configured to use `!` as the command prefix. When using the bot, make sure to start all commands with `!`. This is subject to change in the future.
 
+**NOTE 2:** These commands are only for the discord bot. For the CLI run: `python curiosa.py --help`.
+
 ## card
 
 The card command takes in a card name regardless of capitalization and returns information attached to the card.
@@ -27,6 +29,22 @@ Thresholds: 1A
 Sets: Alpha, Beta
 ```
 
+## cimg
+
+The cimg command takes in a card name regardless of capitalization and returns the URL for the image of the card.
+
+Example:
+
+```
+!cimg Abundance
+```
+
+Output:
+
+```
+https://curiosa.io/_next/image?url=https://d27a44hjr9gen3.cloudfront.net/alp/bosk_troll_b_s.png&w=384&q=75
+```
+
 ## deck
 
 The deck commands takes in either a single ID or URL from which it then webscrapes the deck information.
@@ -43,14 +61,79 @@ is the same as the command
 !deck https://curiosa.io/decks/cm2d6ea5g00etsenu9qa7syod
 ```
 
-yielding a list of cards.
+Output:
+
+```
+The deck from url: https://curiosa.io/decks/cm2d6ea5g00etsenu9qa7syod has the following cards:
+
+Avatar (1)
+  1 - Druid
+Auras (3)
+  2 - Sylvan Splendor
+  1 - Atlantean Fate
+Artifacts (8)
+  2 - Just a Rock
+  1 - Ring of Morrigan
+  1 - Pnakotic Manuscript
+  2 - Horn of Caerleon
+  2 - Drums of Doom
+Minions (33)
+  2 - Porcupine Pufferfish
+  4 - Raal Dromedary
+  4 - Swamp Buffalo
+  2 - Thieving Magpie
+  4 - Vile Imp
+  3 - War Horse
+  3 - Lugbog Cat
+  3 - Redcap Powries
+  2 - Salmon of Knowledge
+  3 - Tufted Turtles
+  2 - Monstrous Lion
+  1 - Ruler of Thul
+Magics (6)
+  1 - Plague of Frogs
+  1 - Pollimorph
+  3 - Minor Explosion
+  1 - Peasant Revolt
+Sites (30)
+  3 - Autumn River
+  2 - Babbling Brook
+  1 - Bonfire
+  1 - Bower of Bliss
+  1 - Fields of Camlann
+  1 - Floodplain
+  4 - Forge
+  3 - Funeral Pyre
+  4 - Hamlet
+  3 - Oasis
+  1 - River of Flame
+  1 - Tadpole Pool
+  3 - Troll Bridge
+  2 - Winter River
+
+Total: 81 cards (51 Spellbook, 30 Atlas)
+```
 
 ## overlap
 
-Overlap gives you the list of cards between multiple decks that are common between them. This command can take in any amount of IDs, but for the sake of the bot becoming blocked during requests, it only takes in the first 3 and returns their overlap.
+The overlap command gives you the list of cards common between multiple decks. This command can take in any amount of IDs, but for the sake of the bot becoming blocked during requests, it only takes in up to the first 3 and returns their overlap.
+
+Example:
 
 ```
 !overlap cm2d6ea5g00etsenu9qa7syod cm21hvt0n01fz5ftgdsevs0wu
 ```
 
-yield the list of cards that the decks have in common.
+Output:
+
+```
+The overlapping cards are:
+Avatar (0)
+Auras (0)
+Artifacts (1)
+  1 - Ring of Morrigan
+Minions (0)
+Magics (0)
+Sites (1)
+  1 - Fields of Camlann
+```

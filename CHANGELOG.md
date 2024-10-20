@@ -2,6 +2,21 @@
 
 Notable changes and additions will be logged into this file.
 
+## [1.0.2] - 2024-?
+
+### Added
+
+ - Fetching card images from Curiosa.io
+
+### Changed
+
+ - Total cards also now give spellbook/atlas split
+ - Utility functionality shifted from `curiosa.py` to `util.py`
+
+### Fixes
+ 
+ - No longer throws an exception when using the commands (whoops)
+
 ## [1.0.1] - 2024-20-10
 
 ### Added
