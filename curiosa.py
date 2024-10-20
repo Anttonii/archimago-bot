@@ -97,6 +97,9 @@ def get_card_counts(deck):
     total_sum = 0
     atlas_sum = 0
     for (k, v) in deck.items():
+        if k == 'Avatar':
+            continue
+
         sum = 0
         for e in v:
             sum += int(e[1])

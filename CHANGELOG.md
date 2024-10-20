@@ -2,7 +2,7 @@
 
 Notable changes and additions will be logged into this file.
 
-## [1.0.2] - 2024-?
+## [1.0.2] - 2024-20-10
 
 ### Added
 
@@ -16,6 +16,7 @@ Notable changes and additions will be logged into this file.
 ### Fixes
  
  - No longer throws an exception when using the commands (whoops)
+ - Avatar is no longer included in deck list total count
 
 ## [1.0.1] - 2024-20-10
 
