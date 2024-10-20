@@ -12,6 +12,8 @@ Notable changes and additions will be logged into this file.
 
  - Total cards also now give spellbook/atlas split
  - Utility functionality shifted from `curiosa.py` to `util.py`
+ - Empty card type groups are no longer returned
+ - No overlapping cards found returns a string indicating that
 
 ### Fixes
  

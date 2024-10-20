@@ -1,6 +1,5 @@
 from util import *
 
-import json
 import os
 import platform
 
@@ -34,14 +33,15 @@ app = typer.Typer()
 
 # The webdriver chromium headless instance
 options = Options()
-if platform == 'Windows':
+if 'Windows' in platform.platform():
     options.add_argument('--headless=old')
     browser = webdriver.Chrome(options=options)
 else:
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-dev-shm-usage')
     options.add_argument('--headless')
-    browser = webdriver.Chrome(options=options, service=Service('/snap/bin/chromium.chromedriver'))
+    browser = webdriver.Chrome(options=options, service=Service(
+        '/snap/bin/chromium.chromedriver'))
 
 
 def prettify_deck(deck):
@@ -55,6 +55,11 @@ def prettify_deck(deck):
         for e in v:
             curr += f"  {e[1]} - {e[0]}\n"
             sum += int(e[1])
+
+        # Don't append empty groups
+        if sum == 0:
+            continue
+
         curr = f"{k}{"" if k == "Avatar" else "s"} ({sum})\n" + curr
         output += curr
     return output + "\n"
@@ -212,8 +217,13 @@ def get_overlapping_cards(browser: webdriver.Chrome, *ids: str) -> str:
         decks.append(request_deck_from_id(browser, id, False))
 
     overlapping = overlap_in_decks(*decks)
-    output += "The overlapping cards are:\n"
-    output += prettify_deck(overlapping)
+
+    # No overlapping cards
+    if not overlapping:
+        output = "There are no overlapping cards."
+    else:
+        output += "The overlapping cards are:\n\n"
+        output += prettify_deck(overlapping)
 
     return output
 
