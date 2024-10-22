@@ -1,10 +1,59 @@
 # Commands
 
+**NOTE:** All of these commands are only for the discord bot. For the CLI run: `python curiosa.py --help`.
+
+In all examples output refers to a message sent by the bot after the example input command has been given.
+
+## Inter-comment commands
+
+There are two commands that can be invoked within messages without adding any special prefix.
+
+### [!<card_name>]
+
+Works identical to `!cimage`
+
+Example:
+
+```
+I was thinking of adding [!abundance] to my deck.
+```
+
+Output:
+
+```
+https://curiosa.io/_next/image?url=https://d27a44hjr9gen3.cloudfront.net/alp/abundance_b_s.png&w=384&q=75
+```
+
+### [[!<card_name>]]
+
+Works identical to `!card`.
+
+Example:
+
+```
+I was thinking of adding [[!apprentice wizard]] to my deck.
+```
+
+Output:
+
+```
+Name: Apprentice Wizard
+Rarity: Ordinary
+Type: Minion
+Rules Text: Spellcaster
+
+Genesis → Draw a spell.
+Attack: 1
+Defence: 1
+Thresholds: 1A 
+Sets: Alpha, Beta
+```
+
+## Prefixed commands
+
 **NOTE:** The bot is currently configured to use `!` as the command prefix. When using the bot, make sure to start all commands with `!`. This is subject to change in the future.
 
-**NOTE 2:** These commands are only for the discord bot. For the CLI run: `python curiosa.py --help`.
-
-## card
+### card
 
 The card command takes in a card name regardless of capitalization and returns information attached to the card.
 
@@ -29,7 +78,7 @@ Thresholds: 1A
 Sets: Alpha, Beta
 ```
 
-## cimg
+### cimg
 
 The cimg command takes in a card name regardless of capitalization and returns the URL for the image of the card.
 
@@ -42,10 +91,10 @@ Example:
 Output:
 
 ```
-https://curiosa.io/_next/image?url=https://d27a44hjr9gen3.cloudfront.net/alp/bosk_troll_b_s.png&w=384&q=75
+https://curiosa.io/_next/image?url=https://d27a44hjr9gen3.cloudfront.net/alp/abundance_b_s.png&w=384&q=75
 ```
 
-## deck
+### deck
 
 The deck commands takes in either a single ID or URL from which it then webscrapes the deck information.
 
@@ -111,10 +160,10 @@ Sites (30)
   3 - Troll Bridge
   2 - Winter River
 
-Total: 81 cards (51 Spellbook, 30 Atlas)
+Total: 80 cards (50 Spellbook, 30 Atlas)
 ```
 
-## overlap
+### overlap
 
 The overlap command gives you the list of cards common between multiple decks. This command can take in any amount of IDs, but for the sake of the bot becoming blocked during requests, it only takes in up to the first 3 and returns their overlap.
 
@@ -128,12 +177,8 @@ Output:
 
 ```
 The overlapping cards are:
-Avatar (0)
-Auras (0)
 Artifacts (1)
   1 - Ring of Morrigan
-Minions (0)
-Magics (0)
 Sites (1)
   1 - Fields of Camlann
 ```

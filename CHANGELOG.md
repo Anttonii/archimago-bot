@@ -2,6 +2,24 @@
 
 Notable changes and additions will be logged into this file.
 
+## [1.0.3] - 2024-22-10
+
+### Added
+
+ - Fetching card image and text can be done within messages!
+   - [!<card_name>] for retrieving a cards image
+   - [[!<card_name>]] for retrieving a cards text
+
+### Changed
+
+ - No longer uses a `discord.by` bot, switched to a client instance for more flexibility
+ - Gave the bot a custom activity status
+ - Deck and overlap commands are only accepted from servers. This is to stop blocking the bot from private messages.
+
+ ### Removed
+
+  - With the removal of standard bot implementation the bot no longer has a help command. This will be readded later.
+
 ## [1.0.2] - 2024-20-10
 
 ### Added

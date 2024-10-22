@@ -78,6 +78,7 @@ def parse_threshold(guardian):
 
 def get_card_entry(card_name: str, cards: dict = None) -> str:
     """
+    Gets the card object from given card dictionary.
     """
     # Load cards if a proper dictionary object is not provided
     if cards == None:
