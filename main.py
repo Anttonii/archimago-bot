@@ -7,7 +7,7 @@ import re
 from dotenv import load_dotenv
 
 import discord
-from discord import CustomActivity, DMChannel, GroupChannel
+from discord import CustomActivity
 
 from curiosa import *
 
@@ -33,26 +33,17 @@ if cards == None:
     sys.exit()
 
 
-def get_card_image_url(card_name) -> str:
-    # Concatenate the name so that we allow spaces in card names
-    if len(card_name) > 1:
-        concat_name = " ".join(card_name)
-    else:
-        concat_name = card_name[0]
-
-    return generate_image_url(concat_name)
-
-
-def check_channel(ctx):
+async def get_faq(ctx, card_name):
     """
-    Checks if the channel is a private channel or group channel
-
-    Used so that blocking requests are only made from servers
+    Gets FAQ entries from curiosa.io for given card name
     """
-    if isinstance(ctx, DMChannel) or isinstance(ctx, GroupChannel):
-        return False
+    card_name = get_card_name_url_form(card_name)
 
-    return True
+    faq_entries = get_faq_entries(card_name)
+    # preserve 6 space for code block
+    truncated = message_truncate(faq_entries, 6)
+
+    await ctx.send(code_blockify(truncated))
 
 
 async def match_command(ctx, command):
@@ -73,6 +64,9 @@ async def match_command(ctx, command):
             await get_card(ctx, parameters)
         case 'cimg':
             await get_card_image(ctx, parameters)
+        # Python choosing to make this ugly it seems.
+        case c if c in ['faq', 'faqs']:
+            await get_faq(ctx, parameters)
         case _:
             print(f"Failed to interpret command: {command}")
 
@@ -86,7 +80,8 @@ async def get_deck(ctx, req):
         return
 
     if len(req) > 1:
-        await ctx.send("Incorrect command, use only 1 deck parameters at a time.")
+        await ctx.send("Incorrect usage, use only 1 deck parameter at a time.")
+        return
 
     split_request = req[0].split("/")
 
@@ -118,14 +113,10 @@ async def get_card(ctx, card_name):
     """
     Get card data by providing a card name.
     """
-    # Concatenate the name so that we allow spaces in card names
-    if len(card_name) > 1:
-        concat_name = " ".join(card_name)
-    else:
-        concat_name = card_name[0]
+    card_name = parse_card_name(card_name)
 
     # Safe to assume cards is not none here since we exit if it is
-    received_output = get_card_from_name(concat_name, cards)
+    received_output = get_card_from_name(card_name, cards)
     await ctx.send(code_blockify(received_output))
 
 
@@ -148,6 +139,10 @@ async def on_message(msg):
     if len(content) > MAX_CONTENT_LEN:
         return
 
+    # Dummy check
+    if len(content) == 0:
+        return
+
     # Regex patterns for commands that are within messages.
     card_image_pattern = r'\[!(.*?)\]'
     ci_pattern_match = re.search(card_image_pattern, content)
@@ -161,8 +156,8 @@ async def on_message(msg):
 
     if "stop" in content and DISCORD_BOT_MODE == 'debug':
         channel.send("Closing bot client..")
-        await client.close()
         browser.quit()
+        await client.close()
         sys.exit()
 
     if content[0] == "!":

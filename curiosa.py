@@ -1,6 +1,7 @@
 from util import *
 
 import os
+import json
 import platform
 
 from selenium import webdriver
@@ -14,10 +15,16 @@ from selenium.common.exceptions import TimeoutException, NoSuchElementException
 import typer
 from typing import List
 
+import requests
+from bs4 import BeautifulSoup
+
 import chromedriver_autoinstaller
 
 # The curiosa.io base URL where deck requests are made to.
 curiosa_deck_base_url = "https://curiosa.io/decks/"
+
+# The curiosa.io base URL where card requests are made to.
+curiosa_card_base_url = "https://curiosa.io/cards/"
 
 # The curiosa.io API backend for getting card data.
 curiosa_api_url = "https://api.sorcerytcg.com/api/cards"
@@ -180,6 +187,54 @@ def parse_deck_table(tables, include_maybe=False):
     return deck
 
 
+def request_faq(card_name: str):
+    """
+    Requests a cards FAQ information and returns the corresponding FAQ information
+    """
+    url = curiosa_card_base_url + card_name
+
+    req = requests.get(url)
+    if req.status_code != 200:
+        print(f"Failed to load FAQ for card name: {
+              card_name}, status code: {req.status_code}")
+        return {"failed": "err_status_code"}
+
+    soup = BeautifulSoup(req.content, 'html.parser')
+
+    # Extract the script content that has the json we are looking for
+    content = soup.find(id='__NEXT_DATA__').contents[0]
+    card_json = json.loads(content)
+    card_data = card_json[
+        'props']['pageProps']['trpcState']['json']['queries'][0]['state']['data']
+
+    if card_data == None:
+        print(f"Failed to load FAQ for card name: {
+              card_name}, card not found!")
+        return {"failed": "not_found"}
+
+    return card_data['faqs']
+
+
+def get_faq_entries(card_name: str):
+    """
+    Makes a request for cards FAQ and returns it in string form if the request is succesful
+    """
+    output = f"FAQ entries found for card: {card_name}\n\n"
+
+    faq = request_faq(card_name)
+    if isinstance(faq, dict):
+        return f"Retrieving FAQ for card {card_name} failed with reason: {faq['failed']}"
+
+    if len(faq) == 0:
+        return f"No FAQ entries found for card: {card_name}."
+
+    for q in faq:
+        output += "Q: " + q['question'] + "\n"
+        output += "A: " + q['answer'] + "\n\n"
+
+    return output.rstrip()
+
+
 def request_deck(browser: webdriver.Chrome, url: str, include_maybe: bool = False):
     """
     Requests a deck from curiosa.io
@@ -187,6 +242,7 @@ def request_deck(browser: webdriver.Chrome, url: str, include_maybe: bool = Fals
     try:
         print(f"Retrieving deck information from URL: {url}.")
         browser.get(url)
+
         WebDriverWait(browser, maximum_wait_timeout).until(
             ec.presence_of_element_located((By.CSS_SELECTOR, "div > table")))
         try:
@@ -303,6 +359,11 @@ def card(card_name: List[str]) -> str:
     Gets a card by name and returns information associated with it.
     """
     print(get_card_from_name(" ".join(card_name)))
+
+
+@app.command()
+def faq(card_name: List[str]) -> str:
+    print(get_faq_entries(get_card_name_url_form(card_name)))
 
 
 @app.command()

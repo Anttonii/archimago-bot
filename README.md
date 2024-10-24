@@ -39,6 +39,7 @@ python curiosa.py --help
 will get you started on interacting with the program through CLI. If you want to add the bot to your own server, you can invite it with this [link](https://discord.com/api/oauth2/authorize?client_id=1297139330279669820&permissions=2048&scope=bot%20applications.commands).
 
 **NOTE**: this bot can handle single requests at a time, it does no buffering/pooling and thus if a command is given when the bot is processing another command, it will not be able to handle that request.
+
 **NOTE 2**: this bot doesn't accept web-scraping commands through private messaging due to reason above.
 
 ## License

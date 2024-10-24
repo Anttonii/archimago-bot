@@ -182,3 +182,22 @@ Artifacts (1)
 Sites (1)
   1 - Fields of Camlann
 ```
+
+### faq or faqs
+
+The faq (faqs has same functionality) command retrieves FAQ information related to a card from curiosa.io and returns it as a message.
+
+Example:
+
+```
+!faq midland army
+```
+
+Output:
+
+```
+FAQ entries found for card: midland_army
+
+Q: Are Foot Soldiers Ordinary earth minions?
+A: Yes!
+```

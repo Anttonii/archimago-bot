@@ -1,6 +1,8 @@
 import json
 import os
 
+from discord import DMChannel, GroupChannel
+
 
 def is_json(value: str) -> bool:
     """
@@ -45,6 +47,50 @@ def load_cards(json_path: str = "data/cards.json"):
             return None
 
     return data
+
+
+def message_truncate(message: str, preserve: int) -> str:
+    """
+    Utility function that truncates message into dicords max character limit of 2000.
+    """
+    # Removes all lettes after 2000 and replaces last 3 with dots
+    # extra value can be set so that we preserve more space, for example when using code_blockify.
+    if len(message) > 2000:
+        message = message[0:1997 - preserve]
+        message += "..."
+
+    return message
+
+
+def parse_card_name(card_name):
+    """
+    Utility function for parsing card names
+    """
+    # Concatenate the name so that we allow spaces in card names
+    if len(card_name) > 1:
+        concat_name = " ".join(card_name)
+    else:
+        concat_name = card_name[0]
+
+    return concat_name
+
+
+def get_card_name_url_form(card_name):
+    """
+    Converts card name to lower case, replaces spaces with underscores and removes special characters.
+    """
+    special_chars = ["\'", "!"]
+    card_name = parse_card_name(card_name)
+
+    card_name = card_name.lower()
+    card_name = card_name.replace(" ", "_")
+    card_name = card_name.replace("-", "_")  # Dream-Quest
+
+    # Remove special characters
+    for c in special_chars:
+        card_name = card_name.replace(c, "")
+
+    return card_name
 
 
 def parse_sets(card):
@@ -112,3 +158,21 @@ def generate_image_url(card_name: str) -> str:
     set_name = set[0:3].lower()
 
     return base_url + set_name + "/" + card_name + extension
+
+
+def check_channel(ctx):
+    """
+    Checks if the channel is a private channel or group channel
+
+    Used so that blocking requests are only made from servers
+    """
+    if isinstance(ctx, DMChannel) or isinstance(ctx, GroupChannel):
+        return False
+
+    return True
+
+
+def get_card_image_url(card_name) -> str:
+    card_name = parse_card_name
+
+    return generate_image_url(card_name)

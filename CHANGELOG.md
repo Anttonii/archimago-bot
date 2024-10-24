@@ -2,6 +2,16 @@
 
 Notable changes and additions will be logged into this file.
 
+## [1.0.4] - 2024-24-10
+
+### Added
+ 
+ - New commands:
+   - `faq` and `faqs` command for discord bot that retrieve cards frequently-asked-questions from curiosa.io.
+   - `faq` CLI command with same functionality.
+ - `requests` and `beautifulsoup4` are now depedencies
+
+
 ## [1.0.3] - 2024-22-10
 
 ### Added
