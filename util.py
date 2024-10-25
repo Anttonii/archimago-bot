@@ -173,6 +173,9 @@ def check_channel(ctx):
 
 
 def get_card_image_url(card_name) -> str:
-    card_name = parse_card_name
+    """
+    Returns the curiosa.io image url from an unparsed card name parameter
+    """
+    card_name = parse_card_name(card_name)
 
     return generate_image_url(card_name)
