@@ -1,24 +1,17 @@
-from util import *
+from . import util
+from .trie import Trie
 
-import os
 import json
-import platform
+import os
 
-from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
-
-import typer
-from typing import List
 
 import requests
 from bs4 import BeautifulSoup
 
-import chromedriver_autoinstaller
 
 # The curiosa.io base URL where deck requests are made to.
 curiosa_deck_base_url = "https://curiosa.io/decks/"
@@ -31,24 +24,6 @@ curiosa_api_url = "https://api.sorcerytcg.com/api/cards"
 
 # The maximum time to wait for a timeout in seconds
 maximum_wait_timeout = 3
-
-# Checks if chrome driver is already in path, if not installs and adds it to path.
-chromedriver_autoinstaller.install()
-
-# Typer instance
-app = typer.Typer()
-
-# The webdriver chromium headless instance
-options = Options()
-if 'Windows' in platform.platform():
-    options.add_argument('--headless=old')
-    browser = webdriver.Chrome(options=options)
-else:
-    options.add_argument('--no-sandbox')
-    options.add_argument('--disable-dev-shm-usage')
-    options.add_argument('--headless')
-    browser = webdriver.Chrome(options=options, service=Service(
-        '/snap/bin/chromium.chromedriver'))
 
 
 def prettify_deck(deck):
@@ -67,7 +42,8 @@ def prettify_deck(deck):
         if sum == 0:
             continue
 
-        curr = f"{k}{"" if k == "Avatar" else "s"} ({sum})\n" + curr
+        suffix = "" if k == "Avatar" else "s"
+        curr = f"{k}{suffix} ({sum})\n" + curr
         output += curr
     return output + "\n"
 
@@ -82,11 +58,11 @@ def prettify_card(card):
     fields = ['rarity', 'type', 'rulesText',
               'cost', 'attack', 'defence', 'life']
 
-    thresholds = parse_threshold(guardian)
-    sets = parse_sets(card)
+    thresholds = util.parse_threshold(guardian)
+    sets = util.parse_sets(card)
 
     for field in fields:
-        if guardian[field] == "" or guardian[field] == None:
+        if guardian[field] == "" or guardian[field] is None:
             continue
 
         if field != "rulesText":
@@ -123,8 +99,7 @@ def get_card_counts(deck):
             if k == "Site":
                 atlas_sum += int(e[1])
         total_sum += sum
-    output += f"Total: {total_sum} cards ({total_sum -
-                                           atlas_sum} Spellbook, {atlas_sum} Atlas)\n\n"
+    output += f"Total: {total_sum} cards({total_sum - atlas_sum} Spellbook, {atlas_sum} Atlas)\n\n"
     return output
 
 
@@ -195,8 +170,8 @@ def request_faq(card_name: str):
 
     req = requests.get(url)
     if req.status_code != 200:
-        print(f"Failed to load FAQ for card name: {
-              card_name}, status code: {req.status_code}")
+        print(
+            f"Failed to load FAQ for card name: {card_name}, status code: {req.status_code}")
         return {"failed": "err_status_code"}
 
     soup = BeautifulSoup(req.content, 'html.parser')
@@ -204,12 +179,12 @@ def request_faq(card_name: str):
     # Extract the script content that has the json we are looking for
     content = soup.find(id='__NEXT_DATA__').contents[0]
     card_json = json.loads(content)
-    card_data = card_json[
-        'props']['pageProps']['trpcState']['json']['queries'][0]['state']['data']
+    card_data = card_json['props']['pageProps']['trpcState']['json'][
+        'queries'][0]['state']['data']
 
-    if card_data == None:
-        print(f"Failed to load FAQ for card name: {
-              card_name}, card not found!")
+    if card_data is None:
+        print(
+            f"Failed to load FAQ for card name: {card_name}, card not found!")
         return {"failed": "not_found"}
 
     return card_data['faqs']
@@ -235,7 +210,8 @@ def get_faq_entries(card_name: str):
     return output.rstrip()
 
 
-def request_deck(browser: webdriver.Chrome, url: str, include_maybe: bool = False):
+def request_deck(
+        url: str, include_maybe: bool = False, browser=None):
     """
     Requests a deck from curiosa.io
     """
@@ -257,20 +233,20 @@ def request_deck(browser: webdriver.Chrome, url: str, include_maybe: bool = Fals
         return "Request timed out, unable to retrieve deck for URL: {url}."
 
 
-def request_deck_from_id(browser, id: str, include_maybe: bool = False):
+def request_deck_from_id(id: str, include_maybe: bool = False, browser=None):
     """
     Appends the base curiosa.io url and passes it into request_deck.
     """
-    return request_deck(browser, curiosa_deck_base_url + id, include_maybe)
+    return request_deck(curiosa_deck_base_url + id, include_maybe, browser)
 
 
-def get_overlapping_cards(browser: webdriver.Chrome, *ids: str) -> str:
+def get_overlapping_cards(ids, browser=None) -> str:
     output = ""
     decks = []
 
     for (i, id) in enumerate(ids):
         print(f"Requesting deck {i+1} with id: {id}")
-        decks.append(request_deck_from_id(browser, id, False))
+        decks.append(request_deck_from_id(id, False, browser))
 
     overlapping = overlap_in_decks(*decks)
 
@@ -284,23 +260,16 @@ def get_overlapping_cards(browser: webdriver.Chrome, *ids: str) -> str:
     return output
 
 
-def get_overlapping_cards_from_str(browser: webdriver.Chrome, ids: str) -> str:
-    return get_overlapping_cards(ids.split(" "))
+def get_overlapping_cards_from_str(ids: str, browser=None) -> str:
+    return get_overlapping_cards(ids.split(" "), browser)
 
 
-@app.command()
-def overlap(ids: str):
-    """
-    Returns a list of cards that overlap in a list of decks. Does not support maybeboards
-    """
-    print(get_overlapping_cards_from_str(browser, ids))
-
-
-def get_deck_from_url(browser: webdriver.Chrome, url: str, include_maybe: bool = False) -> str:
+def get_deck_from_url(url: str,
+                      include_maybe: bool = False, browser=None) -> str:
     output = ""
 
-    deck = request_deck(browser, url, include_maybe)
-    if deck == None:
+    deck = request_deck(url, include_maybe, browser)
+    if deck is None:
         output = f"Failed to load deck with url: {url}"
         output = "Check that the url is a valid one."
         return output
@@ -312,19 +281,12 @@ def get_deck_from_url(browser: webdriver.Chrome, url: str, include_maybe: bool =
     return output
 
 
-@app.command()
-def url(url: str, include_maybe: bool = False):
-    """
-    Returns a deck of cards from an URL
-    """
-    print(get_deck_from_url(browser, url, include_maybe))
-
-
-def get_deck_from_id(browser: webdriver.Chrome, id: str, include_maybe: bool = False) -> str:
+def get_deck_from_id(id: str,
+                     include_maybe: bool = False, browser=None) -> str:
     output = ""
 
-    deck = request_deck_from_id(browser, id, include_maybe)
-    if deck == None:
+    deck = request_deck_from_id(id, include_maybe, browser)
+    if deck is None:
         output = f"Failed to load deck with id: {id}"
         output = "Check that the id is a valid one."
         return output
@@ -336,64 +298,37 @@ def get_deck_from_id(browser: webdriver.Chrome, id: str, include_maybe: bool = F
     return output
 
 
-@app.command()
-def id(id: str, include_maybe: bool = False):
-    """
-    Returns a deck of cards from an ID.
-    """
-    print(get_deck_from_id(browser, id, include_maybe))
+def get_card_from_name(card_name: str, pt: Trie = None, cards: dict = None) -> str:
+    card = util.get_card_entry(card_name, cards)
+    prefixes = pt.starts_with(card_name)
+    prefix = "." if prefixes is None else f", did you mean: {prefixes[0]}?"
 
-
-def get_card_from_name(card_name: str, cards: dict = None) -> str:
-    card = get_card_entry(card_name, cards)
-
-    if card == None:
-        return f"Could not find card by card name {card_name}."
+    if card is None:
+        return f"Could not find card by card name {card_name}{prefix}"
     else:
         return prettify_card(card)
 
 
-@app.command()
-def card(card_name: List[str]) -> str:
-    """
-    Gets a card by name and returns information associated with it.
-    """
-    print(get_card_from_name(" ".join(card_name)))
-
-
-@app.command()
-def faq(card_name: List[str]) -> str:
-    print(get_faq_entries(get_card_name_url_form(card_name)))
-
-
-@app.command()
-def download(output: str = 'data'):
-    """
-    Downloads card data from the official curiosa.io API and saves it into a file.
-    """
+def download_cards_json(output: str = "data"):
     print(f"Retrieving sorcery card json file from {curiosa_api_url}..")
-    browser.get(curiosa_api_url)
-    try:
-        output_path = os.path.join(output, "cards.json")
-        element = browser.find_element(By.TAG_NAME, "pre")
-        content = element.text
 
-        if not is_json(content):
-            print(f"The returned element is not a valid json, can not save to file.")
-            return
+    req = requests.get(curiosa_api_url)
+    if req.status_code != 200:
+        print(f"Failed to get cards API with status code: {req.status_code}")
+        return
 
-        if os.path.exists(output_path):
-            print("Cards.json already present, overwriting..")
+    output_path = os.path.join(output, "cards.json")
+    content = req.content
 
-        with open(output_path, "w+", encoding="utf-8") as json_file:
-            json_file.write(content)
+    if not util.is_json(content):
+        print("The returned element is not a valid json, can not save to file.")
+        return
 
-        print(f"Card data succesfully downloaded and saved into: {
-              output_path}!")
-    except NoSuchElementException:
-        print(f"Unable to find json containing element, check that the URL is correct.")
+    if os.path.exists(output_path):
+        print("Cards.json already present, overwriting..")
 
+    with open(output_path, "wb+") as json_file:
+        json_file.write(content)
 
-if __name__ == "__main__":
-    app()
-    browser.quit()
+    print(
+        f"Card data succesfully downloaded and saved into: {output_path}!")

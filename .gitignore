@@ -1,6 +1,7 @@
 /disc-menv
-/__pycache__
+/disc-venv
 /data/cards.json
 
+__pycache__
 .env
 activate.ps1

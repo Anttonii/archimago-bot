@@ -17,7 +17,7 @@ After installing the depdendencies, the program will when first run make sure th
 The program also caches the cards data that can be retrieved from [curiosa.io API](https://api.sorcerytcg.com/). For `card` CLI command to work, first run
 
 ```
-python curiosa.py download
+python main.py download
 ```
 
 which then downloads the `cards.json` file into the data folder.
@@ -27,13 +27,13 @@ which then downloads the `cards.json` file into the data folder.
 Although the main usage is to have this function as bot on the Finnish sorcery server, the program can also be run as a CLI. For instance fetching a deck by ID can be done by
 
 ```
-python curiosa.py id <your_deck_id_here>
+python main.py id <your_deck_id_here>
 ```
 
 which webscapes the deck and then prints your deck list a string. Running
 
 ```
-python curiosa.py --help
+python main.py --help
 ```
 
 will get you started on interacting with the program through CLI. If you want to add the bot to your own server, you can invite it with this [link](https://discord.com/api/oauth2/authorize?client_id=1297139330279669820&permissions=2048&scope=bot%20applications.commands).
@@ -41,6 +41,8 @@ will get you started on interacting with the program through CLI. If you want to
 **NOTE**: this bot can handle single requests at a time, it does no buffering/pooling and thus if a command is given when the bot is processing another command, it will not be able to handle that request.
 
 **NOTE 2**: this bot doesn't accept web-scraping commands through private messaging due to reason above.
+
+**NOTE 3**: if you want to run your own instance, refer to [discord.py](https://discordpy.readthedocs.io/en/latest/intro.html) documentation for setting the discord bot account up and then provide the corresponding bot token to the `discord_client` instance.
 
 ## License
 

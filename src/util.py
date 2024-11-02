@@ -1,7 +1,49 @@
+import platform
 import json
 import os
 
 from discord import DMChannel, GroupChannel
+
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service as ChromeService
+from selenium.webdriver.chrome.options import Options as ChromeOptions
+from selenium.webdriver.firefox.options import Options as FirefoxOptions
+from selenium.webdriver.firefox.service import Service as FirefoxService
+
+import chromedriver_autoinstaller
+
+
+def build_browser():
+    """
+    Builds a Selenium webdriver instance
+    """
+    print("Instantiating webdriver instance..")
+
+    # Checks if chrome driver is already in path, if not installs and adds it to path.
+    if 'macOS' not in platform.platform():
+        chromedriver_autoinstaller.install()
+
+    # The webdriver chromium headless instance
+    c_options = ChromeOptions()
+    try:
+        if 'Windows' in platform.platform():
+            c_options.add_argument('--headless=old')
+            _browser = webdriver.Chrome(options=c_options)
+        elif 'macOS' in platform.platform():
+            f_options = FirefoxOptions()
+            f_options.add_argument('-headless')
+            _browser = webdriver.Firefox(options=f_options, service=FirefoxService(
+                '/opt/homebrew/bin/geckodriver'))
+        else:
+            c_options.add_argument('--no-sandbox')
+            c_options.add_argument('--disable-dev-shm-usage')
+            c_options.add_argument('--headless')
+            _browser = webdriver.Chrome(options=c_options, service=ChromeService(
+                '/snap/bin/chromium.chromedriver'))
+        return _browser
+    except ValueError:
+        print("Failed to setup Selenium, this is most likely an issue with unsupported OS.")
+        return None
 
 
 def is_json(value: str) -> bool:
@@ -11,6 +53,7 @@ def is_json(value: str) -> bool:
     try:
         json.loads(value)
     except ValueError as e:
+        print(f"Failed to load JSON from {value}, error: {e}")
         return False
     return True
 
@@ -36,14 +79,14 @@ def load_cards(json_path: str = "data/cards.json"):
     if not os.path.exists(json_path):
         print("Could not load cards.json, make sure to download it before attempting to retrieve data from it.")
         print("The file can be automatically downloaded with the command: python curiosa.py download")
-        return None
+        raise Exception(f"Failed to load cards.json from path: {json_path}")
 
     with open(json_path, 'r', encoding="utf-8") as json_file:
         try:
             data = json.load(json_file)
         except json.JSONDecodeError:
-            print(f"Failed to load {
-                  json_path}, the file at path is an invalid JSON file.")
+            print(
+                f"Failed to load {json_path}, the file at path is an invalid JSON file.")
             return None
 
     return data
@@ -62,33 +105,19 @@ def message_truncate(message: str, preserve: int) -> str:
     return message
 
 
-def parse_card_name(card_name):
-    """
-    Utility function for parsing card names
-    """
-    # Concatenate the name so that we allow spaces in card names
-    if len(card_name) > 1:
-        concat_name = " ".join(card_name)
-    else:
-        concat_name = card_name[0]
-
-    return concat_name
-
-
-def get_card_name_url_form(card_name):
+def get_card_name_url_form(card_name: str) -> str:
     """
     Converts card name to lower case, replaces spaces with underscores and removes special characters.
     """
-    special_chars = ["\'", "!"]
-    card_name = parse_card_name(card_name)
+    special_chars = ['\'', '!']
 
     card_name = card_name.lower()
-    card_name = card_name.replace(" ", "_")
-    card_name = card_name.replace("-", "_")  # Dream-Quest
+    card_name = card_name.replace(' ', '_')
+    card_name = card_name.replace('-', '_')  # Dream-Quest, Wills-o-the-Wisp
 
     # Remove special characters
     for c in special_chars:
-        card_name = card_name.replace(c, "")
+        card_name = card_name.replace(c, '')
 
     return card_name
 
@@ -127,30 +156,25 @@ def get_card_entry(card_name: str, cards: dict = None) -> str:
     Gets the card object from given card dictionary.
     """
     # Load cards if a proper dictionary object is not provided
-    if cards == None:
+    if cards is None:
         cards = load_cards()
 
     for card in cards:
-        if card['name'].lower() == card_name.lower():
+        if get_card_name_url_form(card['name']) == get_card_name_url_form(card_name):
             return card
 
     return None
 
 
-def generate_image_url(card_name: str) -> str:
+def generate_image_url(card_name: str, cards: dict = None) -> str:
     """
     Generates an image URL from a given card name.
     """
     base_url = "https://curiosa.io/_next/image?url=https://d27a44hjr9gen3.cloudfront.net/"
     extension = "_b_s.png&w=384&q=75"
 
-    card = get_card_entry(card_name)
-    card_name = card['name'].lower()
-
-    # Convert spaces into underscores
-    name_split = card_name.split(" ")
-    if len(name_split) > 1:
-        card_name = "_".join(name_split)
+    card = get_card_entry(card_name, cards)
+    card_name = get_card_name_url_form(card['name'])
 
     set = parse_sets(card)
 
@@ -172,10 +196,36 @@ def check_channel(ctx):
     return True
 
 
-def get_card_image_url(card_name) -> str:
+def get_card_image_url(card_name, cards: dict = None) -> str:
     """
     Returns the curiosa.io image url from an unparsed card name parameter
     """
-    card_name = parse_card_name(card_name)
+    return generate_image_url(' '.join(card_name), cards)
 
-    return generate_image_url(card_name)
+
+def get_all_card_names(cards: dict):
+    """
+    Extracts all card names from cards.json file.
+    """
+    return [
+        get_card_name_url_form(card['name'])
+        for card in cards
+    ]
+
+
+def with_selenium(func):
+    """
+    A decorator that provides a Selenium webdriver instance for functions requiring it
+    and also makes sure that the webdriver gets closed properly after being used.
+    """
+    def inner1(*args):
+        _browser = build_browser()
+
+        if _browser is None:
+            print("Failed to instantiate Selenium webdriver instance.")
+            return
+
+        func(*args, _browser)
+
+        _browser.quit()
+    return inner1
