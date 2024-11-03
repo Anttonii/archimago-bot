@@ -2,6 +2,12 @@
 
 Notable changes and additions will be logged into this file.
 
+## [1.0.6] - ?
+
+### Added
+
+- Fuzzy matching for card names
+
 ## [1.0.5] - 2024-2-11
 
 ### Added

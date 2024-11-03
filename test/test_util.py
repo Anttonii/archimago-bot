@@ -52,8 +52,8 @@ class TestUtil(unittest.TestCase):
     def test_get_card_name_url_form(self):
         """Test that makes sure URL form is correctly formulated for all special cases"""
         test_card_1 = "Wills-o\'-the-Wisp"
-        test_card_2 = "Merlin's", "Staff"
-        test_card_3 = "Fire", "Harpoons!"
+        test_card_2 = "Merlin's Staff"
+        test_card_3 = "Fire Harpoons!"
 
         self.assertEqual(util.get_card_name_url_form(
             test_card_1), "wills_o_the_wisp")

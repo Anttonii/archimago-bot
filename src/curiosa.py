@@ -299,9 +299,17 @@ def get_deck_from_id(id: str,
 
 
 def get_card_from_name(card_name: str, pt: Trie = None, cards: dict = None) -> str:
+    """
+    Returns card information from given card name.
+    """
     card = util.get_card_entry(card_name, cards)
     prefixes = pt.starts_with(card_name)
-    prefix = "." if prefixes is None else f", did you mean: {prefixes[0]}?"
+    fuzzy = pt.fuzzy_match(card_name)
+
+    if fuzzy is None:
+        prefix = "." if prefixes is None else f", did you mean: {prefixes[0]}?"
+    else:
+        prefix = f", did you mean: {fuzzy[1]}?"
 
     if card is None:
         return f"Could not find card by card name {card_name}{prefix}"
@@ -310,6 +318,9 @@ def get_card_from_name(card_name: str, pt: Trie = None, cards: dict = None) -> s
 
 
 def download_cards_json(output: str = "data"):
+    """
+    Makes a request to Curiosa.io API to download the official card data.
+    """
     print(f"Retrieving sorcery card json file from {curiosa_api_url}..")
 
     req = requests.get(curiosa_api_url)

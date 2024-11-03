@@ -1,3 +1,4 @@
+from difflib import SequenceMatcher as SM
 from typing import List
 
 
@@ -19,6 +20,7 @@ class Trie():
 
     def __init__(self):
         self.root = Node()
+        self.word_list = []
 
     def insert_all(self, words):
         """
@@ -38,6 +40,7 @@ class Trie():
                 current.children[ch] = Node(prefix)
             current = current.children[ch]
         current.word_node = True
+        self.word_list.append(word)
 
     def find(self, word):
         """
@@ -107,3 +110,38 @@ class Trie():
                 stack.append(curr.children[ch])
 
         return words
+
+    def fuzzy_match(self, card_name: str) -> tuple[float, str]:
+        """
+        Returns the best rating fuzzy word match from trie.
+        """
+        def filter_func(s1, s2):
+            """
+            Filter based on first four characters when possible
+            """
+            s1_len = min(4, len(s1))
+            s2_len = min(s1_len, len(s2))
+
+            for i in range(s1_len):
+                if s1[i] in s2[:s2_len]:
+                    return True
+
+            return False
+
+        # Simple pruning where we only evalute the words with the same starting letter.
+        pruned_list = list(
+            filter(lambda x: filter_func(card_name, x), self.word_list)
+        )
+
+        matched_words = [
+            (SM(None, card_name, word).ratio(), word)
+            for word in pruned_list
+        ]
+
+        if len(matched_words) == 0:
+            return None
+
+        best_match = max(matched_words)
+
+        # Return best match if ratio is higher than 0.5
+        return best_match if best_match[0] > 0.5 else None

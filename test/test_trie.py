@@ -47,11 +47,18 @@ class TrieTests(unittest.TestCase):
         self.assertEqual(self.trie.count(), 5)
 
     def test_starts_with(self):
-        """Tests that starts with function gives correct suffixes"""
+        """Tests that starts_with function gives correct suffixes"""
         self.trie.insert("wordz")
         self.assertEqual(self.trie.starts_with("te"), ["test"])
         self.assertEqual(self.trie.starts_with(
             "word"), ["wordz", "words"])
+
+    def test_fuzzy_match(self):
+        """Test that fuzzy matching gives correct possible words"""
+        self.trie.insert_all(["this_is_a_test_sentence"])
+        self.assertEqual(self.trie.fuzzy_match(
+            "dis_is_a_test_sentence")[1], "this_is_a_test_sentence")
+        self.assertIsNone(self.trie.fuzzy_match("low_ratio"))
 
 
 if __name__ == "__main__":
