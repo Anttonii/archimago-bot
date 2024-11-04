@@ -1,0 +1,41 @@
+repos:
+  - repo: https://github.com/charliermarsh/ruff-pre-commit
+    rev: v0.4.6
+    hooks:
+      - id: ruff
+      - id: ruff-format
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: pretty-format-json
+        args: [--autofix, --no-sort-keys]
+
+  - repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
+    rev: v2.13.0
+    hooks:
+      - id: pretty-format-toml
+        args: [--autofix, --no-sort, --trailing-commas]
+        exclude: poetry.lock
+      - id: pretty-format-yaml
+        args: [--autofix, --offset=2, --preserve-quotes]
+
+  - repo: https://github.com/executablebooks/mdformat
+    rev: 0.7.17
+    hooks:
+      - id: mdformat
+
+  - repo: https://github.com/crate-ci/typos
+    rev: v1.21.0
+    hooks:
+      - id: typos
+        args: [--force-exclude]
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.13.0
+    hooks:
+      - id: mypy
+        args: [--ignore-missing-imports]
+        additional_dependencies: ['types-requests']

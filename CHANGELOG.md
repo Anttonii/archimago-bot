@@ -2,10 +2,11 @@
 
 Notable changes and additions will be logged into this file.
 
-## [1.0.6] - ?
+## \[1.0.6\] - ?
 
 ### Added
 
+- CI/CD integration
 - Fuzzy matching for card names
 - Discord bots status changes randomly every 15 minutes.
 
@@ -17,7 +18,7 @@ Notable changes and additions will be logged into this file.
 
 - `faq` command no longer sends the request if the card is not found internally.
 
-## [1.0.5] - 2024-2-11
+## \[1.0.5\] - 2024-2-11
 
 ### Added
 
@@ -36,22 +37,22 @@ Notable changes and additions will be logged into this file.
 
 - Selenium webdriver instances are correctly closed after usage, no more lingering browser processes.
 
-## [1.0.4] - 2024-24-10
+## \[1.0.4\] - 2024-24-10
 
 ### Added
 
 - New commands:
   - `faq` and `faqs` command for discord bot that retrieve cards frequently-asked-questions from curiosa.io.
   - `faq` CLI command with same functionality.
-- `requests` and `beautifulsoup4` are now depedencies
+- `requests` and `beautifulsoup4` are now dependencies
 
-## [1.0.3] - 2024-22-10
+## \[1.0.3\] - 2024-22-10
 
 ### Added
 
 - Fetching card image and text can be done within messages!
-  - [!<card_name>] for retrieving a cards image
-  - [[!<card_name>]] for retrieving a cards text
+  - \[!\<card_name>\] for retrieving a cards image
+  - \[\[!\<card_name>\]\] for retrieving a cards text
 
 ### Changed
 
@@ -63,7 +64,7 @@ Notable changes and additions will be logged into this file.
 
 - With the removal of standard bot implementation the bot no longer has a help command. This will be readded later.
 
-## [1.0.2] - 2024-20-10
+## \[1.0.2\] - 2024-20-10
 
 ### Added
 
@@ -82,7 +83,7 @@ Notable changes and additions will be logged into this file.
 - Avatar is no longer included in deck list total count
 - Selenium is now configured to work both on Windows and Ubuntu
 
-## [1.0.1] - 2024-20-10
+## \[1.0.1\] - 2024-20-10
 
 ### Added
 
@@ -100,6 +101,6 @@ Notable changes and additions will be logged into this file.
 - Improved documentation, fixed typos
 - Commands are now categorized
 
-## [1.0.0] - 2024-19-10
+## \[1.0.0\] - 2024-19-10
 
 - Initial release

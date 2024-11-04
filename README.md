@@ -12,7 +12,7 @@ As usual with python programs fetching required rependencies can be done with `p
 pip install -r requirements.txt
 ```
 
-After installing the depdendencies, the program will when first run make sure that chromedriver is installed to your path. Alternatively, you can also provide your own instance of a webdriver when interacting with `curiosa.py`.
+After installing the dependencies, the program will when first run make sure that chromedriver is installed to your path. Alternatively, you can also provide your own instance of a webdriver when interacting with `curiosa.py`.
 
 The program also caches the cards data that can be retrieved from [curiosa.io API](https://api.sorcerytcg.com/). For `card` CLI command to work, first run
 

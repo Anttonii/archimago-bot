@@ -1,12 +1,8 @@
-import src.util as util
-import src.curiosa as curiosa
-from src import DiscordClient, Trie
-
-from src.util import with_selenium
-
-from typing import List
-
 import typer
+
+import src.curiosa as curiosa
+import src.util as util
+from src import DiscordClient, Trie, with_selenium
 
 # Typer instance
 app = typer.Typer()
@@ -66,7 +62,7 @@ def id(id: str, include_maybe: bool = False):
 
 
 @app.command()
-def card(card_name: List[str]) -> str:
+def card(card_name: list[str]):
     """
     Gets a card by name and returns information associated with it.
     """
@@ -75,32 +71,33 @@ def card(card_name: List[str]) -> str:
 
 
 @app.command()
-def faq(card_name: List[str]) -> str:
+def faq(card_name: list[str]):
     """
     Gets a cards FAQ fields scraped from Curiosa.io
     """
     cn, pt, cards = command_preq(card_name)
     print(curiosa.get_faq_entries(cn, pt, cards))
+    return
 
 
 @app.command()
-def download(output: str = 'data'):
+def download(output: str = "data"):
     """
     Downloads card data from the official curiosa.io API and saves it into a file.
     """
     curiosa.download_cards_json(output)
 
 
-def command_preq(card_name: str) -> tuple[str, Trie, dict]:
+def command_preq(card_name: list[str]) -> tuple[str, Trie, dict]:
     """
     Shorthand for initializing card name suggestions in commands
     """
     cards = util.load_cards()
 
     return (
-        util.get_card_name_url_form(' '.join(card_name)),
+        util.get_card_name_url_form(" ".join(card_name)),
         Trie(util.get_all_card_names(cards)),
-        cards
+        cards,
     )
 
 

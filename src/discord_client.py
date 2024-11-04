@@ -1,20 +1,19 @@
-from . import curiosa, util
-from .trie import Trie
-
 import asyncio
 import os
 import random
 import re
 from asyncio import run as aiorun
 
-from dotenv import load_dotenv
-
 import discord
 from discord import CustomActivity
+from dotenv import load_dotenv
+
+from . import curiosa, util
+from .trie import Trie
 
 load_dotenv()
-DISCORD_BOT_TOKEN = os.getenv('discord-bot-token')
-DISCORD_BOT_MODE = os.getenv('discord-bot-mode')
+DISCORD_BOT_TOKEN = os.getenv("discord-bot-token")
+DISCORD_BOT_MODE = os.getenv("discord-bot-mode")
 
 # Status messages chosen by random displayed under the bots name
 STATUS_MESSAGES = [
@@ -25,14 +24,14 @@ STATUS_MESSAGES = [
     "Erupting Vesuvius..",
     "Pathfinding..",
     "Navigating the Stormy Seas..",
-    "Attending the Royal Wedding.."
+    "Attending the Royal Wedding..",
 ]
 
 # The time it takes for the status to randomly change in seconds.
 STATUS_UPDATE_TIMER = 300
 
 # Command prefix character, messages starting with this are considered commands.
-COMMAND_PREFIX = '!'
+COMMAND_PREFIX = "!"
 
 
 class DiscordClient(discord.Client):
@@ -60,18 +59,18 @@ class DiscordClient(discord.Client):
         parameters = split_command[1:]
 
         match command:
-            case 'deck':
+            case "deck":
                 await self.get_deck(ctx, parameters)
-            case 'overlap':
+            case "overlap":
                 await self.get_overlap(ctx, parameters)
-            case 'card':
+            case "card":
                 await self.get_card(ctx, parameters)
-            case 'cimg':
+            case "cimg":
                 await self.get_card_image(ctx, parameters)
-            case c if c in ['faq', 'faqs']:
+            case c if c in ["faq", "faqs"]:
                 await self.get_faq(ctx, parameters)
-            case 'stop':
-                if DISCORD_BOT_MODE == 'debug':
+            case "stop":
+                if DISCORD_BOT_MODE == "debug":
                     await self.close_client()
             case _:
                 print(f"Failed to interpret command: {command}")
@@ -81,10 +80,10 @@ class DiscordClient(discord.Client):
         Handles regex commands
         """
         # Regex patterns for commands that are within messages.
-        card_image_pattern = r'\[!(.*?)\]'
+        card_image_pattern = r"\[!(.*?)\]"
         ci_pattern_match = re.search(card_image_pattern, content)
 
-        card_text_pattern = r'\[\[!(.*?)\]\]'
+        card_text_pattern = r"\[\[!(.*?)\]\]"
         ct_pattern_match = re.search(card_text_pattern, content)
 
         if ct_pattern_match:
@@ -101,13 +100,9 @@ class DiscordClient(discord.Client):
         """
         Gets FAQ entries from curiosa.io for given card name
         """
-        card_name = util.get_card_name_url_form(' '.join(card_name))
+        card_name = util.get_card_name_url_form(" ".join(card_name))
 
-        faq_entries = curiosa.get_faq_entries(
-            card_name,
-            self.prefixTree,
-            self.cards
-        )
+        faq_entries = curiosa.get_faq_entries(card_name, self.prefixTree, self.cards)
 
         # preserve 6 space for code block
         truncated = util.message_truncate(faq_entries, 6)
@@ -119,7 +114,9 @@ class DiscordClient(discord.Client):
         Gets cards belonging to a deck from a curiosa.io URL or ID.
         """
         if not util.check_channel(ctx):
-            await ctx.send("Deck command can currently only be used on servers, not in private messages.")
+            await ctx.send(
+                "Deck command can currently only be used on servers, not in private messages."
+            )
             return
 
         if len(req) > 1:
@@ -129,11 +126,9 @@ class DiscordClient(discord.Client):
         split_request = req[0].split("/")
 
         if len(split_request) > 1:
-            received_output = curiosa.get_deck_from_url(
-                req[0], False, self._browser)
+            received_output = curiosa.get_deck_from_url(req[0], False, self._browser)
         else:
-            received_output = curiosa.get_deck_from_id(
-                req[0], False, self._browser)
+            received_output = curiosa.get_deck_from_id(req[0], False, self._browser)
 
         await ctx.send(util.code_blockify(received_output))
 
@@ -142,7 +137,9 @@ class DiscordClient(discord.Client):
         Get overlapping cards between decks having provided at least 2 deck IDs.
         """
         if not util.check_channel(ctx):
-            await ctx.send("Overlap command can currently only be used on servers, not in private messages.")
+            await ctx.send(
+                "Overlap command can currently only be used on servers, not in private messages."
+            )
             return
 
         # Avoid blocking the whole app by providing a giant list of ids.
@@ -156,13 +153,11 @@ class DiscordClient(discord.Client):
         """
         Get card data by providing a card name.
         """
-        card_name = util.get_card_name_url_form(' '.join(parameters))
+        card_name = util.get_card_name_url_form(" ".join(parameters))
 
         # Safe to assume cards is not none here since we exit if it is
         received_output = curiosa.get_card_from_name(
-            card_name,
-            self.prefixTree,
-            self.cards
+            card_name, self.prefixTree, self.cards
         )
 
         await ctx.send(util.code_blockify(received_output))
@@ -172,9 +167,7 @@ class DiscordClient(discord.Client):
         Gets card image in URL form
         """
         image_url = curiosa.generate_image_url(
-            ' '.join(card_name),
-            self.prefixTree,
-            self.cards
+            " ".join(card_name), self.prefixTree, self.cards
         )
 
         if not image_url.startswith("https://"):
@@ -195,8 +188,7 @@ class DiscordClient(discord.Client):
             self.current_status = random_status
 
             await self.change_presence(
-                status=None,
-                activity=CustomActivity(self.current_status)
+                status=None, activity=CustomActivity(self.current_status)
             )
 
             await asyncio.sleep(STATUS_UPDATE_TIMER)
