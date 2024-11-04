@@ -8,7 +8,7 @@ In all examples output refers to a message sent by the bot after the example inp
 
 There are two commands that can be invoked within messages without adding any special prefix.
 
-### [!<card_name>]
+### \[!\<card_name>\]
 
 Works identical to `!cimage`
 
@@ -24,7 +24,7 @@ Output:
 https://curiosa.io/_next/image?url=https://d27a44hjr9gen3.cloudfront.net/alp/abundance_b_s.png&w=384&q=75
 ```
 
-### [[!<card_name>]]
+### \[\[!\<card_name>\]\]
 
 Works identical to `!card`.
 
@@ -45,7 +45,7 @@ Rules Text: Spellcaster
 Genesis → Draw a spell.
 Attack: 1
 Defence: 1
-Thresholds: 1A 
+Thresholds: 1A
 Sets: Alpha, Beta
 ```
 
@@ -74,7 +74,7 @@ Rules Text: Spellcaster
 Genesis → Draw a spell.
 Attack: 1
 Defence: 1
-Thresholds: 1A 
+Thresholds: 1A
 Sets: Alpha, Beta
 ```
 

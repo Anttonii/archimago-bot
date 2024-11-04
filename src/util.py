@@ -1,16 +1,16 @@
-import platform
+from typing import Any
+
 import json
 import os
-
-from discord import DMChannel, GroupChannel
-
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service as ChromeService
-from selenium.webdriver.chrome.options import Options as ChromeOptions
-from selenium.webdriver.firefox.options import Options as FirefoxOptions
-from selenium.webdriver.firefox.service import Service as FirefoxService
+import platform
 
 import chromedriver_autoinstaller
+from discord import DMChannel, GroupChannel
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options as ChromeOptions
+from selenium.webdriver.chrome.service import Service as ChromeService
+from selenium.webdriver.firefox.options import Options as FirefoxOptions
+from selenium.webdriver.firefox.service import Service as FirefoxService
 
 
 def build_browser():
@@ -20,29 +20,35 @@ def build_browser():
     print("Instantiating webdriver instance..")
 
     # Checks if chrome driver is already in path, if not installs and adds it to path.
-    if 'macOS' not in platform.platform():
+    if "macOS" not in platform.platform():
         chromedriver_autoinstaller.install()
 
     # The webdriver chromium headless instance
     c_options = ChromeOptions()
     try:
-        if 'Windows' in platform.platform():
-            c_options.add_argument('--headless=old')
+        if "Windows" in platform.platform():
+            c_options.add_argument("--headless=old")
             _browser = webdriver.Chrome(options=c_options)
-        elif 'macOS' in platform.platform():
+        elif "macOS" in platform.platform():
             f_options = FirefoxOptions()
-            f_options.add_argument('-headless')
-            _browser = webdriver.Firefox(options=f_options, service=FirefoxService(
-                '/opt/homebrew/bin/geckodriver'))
+            f_options.add_argument("-headless")
+            _browser = webdriver.Firefox(
+                options=f_options,
+                service=FirefoxService("/opt/homebrew/bin/geckodriver"),
+            )
         else:
-            c_options.add_argument('--no-sandbox')
-            c_options.add_argument('--disable-dev-shm-usage')
-            c_options.add_argument('--headless')
-            _browser = webdriver.Chrome(options=c_options, service=ChromeService(
-                '/snap/bin/chromium.chromedriver'))
+            c_options.add_argument("--no-sandbox")
+            c_options.add_argument("--disable-dev-shm-usage")
+            c_options.add_argument("--headless")
+            _browser = webdriver.Chrome(
+                options=c_options,
+                service=ChromeService("/snap/bin/chromium.chromedriver"),
+            )
         return _browser
     except ValueError:
-        print("Failed to setup Selenium, this is most likely an issue with unsupported OS.")
+        print(
+            "Failed to setup Selenium, this is most likely an issue with unsupported OS."
+        )
         return None
 
 
@@ -77,16 +83,21 @@ def load_cards(json_path: str = "data/cards.json"):
     Loads cards from cards.json into memory for quick retrieval.
     """
     if not os.path.exists(json_path):
-        print("Could not load cards.json, make sure to download it before attempting to retrieve data from it.")
-        print("The file can be automatically downloaded with the command: python curiosa.py download")
+        print(
+            "Could not load cards.json, make sure to download it before attempting to retrieve data from it."
+        )
+        print(
+            "The file can be automatically downloaded with the command: python curiosa.py download"
+        )
         raise Exception(f"Failed to load cards.json from path: {json_path}")
 
-    with open(json_path, 'r', encoding="utf-8") as json_file:
+    with open(json_path, "r", encoding="utf-8") as json_file:
         try:
             data = json.load(json_file)
         except json.JSONDecodeError:
             print(
-                f"Failed to load {json_path}, the file at path is an invalid JSON file.")
+                f"Failed to load {json_path}, the file at path is an invalid JSON file."
+            )
             return None
 
     return data
@@ -99,7 +110,7 @@ def message_truncate(message: str, preserve: int) -> str:
     # Removes all lettes after 2000 and replaces last 3 with dots
     # preserve value can be set so that we preserve more space, for example when using code_blockify.
     if len(message) > 2000:
-        message = message[0:1997 - preserve]
+        message = message[0 : 1997 - preserve]
         message += "..."
 
     return message
@@ -109,15 +120,15 @@ def get_card_name_url_form(card_name: str) -> str:
     """
     Converts card name to lower case, replaces spaces with underscores and removes special characters.
     """
-    special_chars = ['\'', '!']
+    special_chars = ["'", "!"]
 
     card_name = card_name.lower()
-    card_name = card_name.replace(' ', '_')
-    card_name = card_name.replace('-', '_')  # Dream-Quest, Wills-o-the-Wisp
+    card_name = card_name.replace(" ", "_")
+    card_name = card_name.replace("-", "_")  # Dream-Quest, Wills-o-the-Wisp
 
     # Remove special characters
     for c in special_chars:
-        card_name = card_name.replace(c, '')
+        card_name = card_name.replace(c, "")
 
     return card_name
 
@@ -127,12 +138,12 @@ def parse_sets(card):
     Parses sets into a single line
     """
     output = ""
-    sets = card['sets']
+    sets = card["sets"]
 
     for _set in sets:
-        output += _set['name'] + ", "
+        output += _set["name"] + ", "
 
-    return output[0:len(output) - 2]
+    return output[0 : len(output) - 2]
 
 
 def parse_threshold(guardian):
@@ -142,8 +153,8 @@ def parse_threshold(guardian):
     Example output for a card having 1 air and 1 water threshold is (A)(W)
     """
     output = ""
-    thresholds = guardian['thresholds']
-    for (k, v) in thresholds.items():
+    thresholds = guardian["thresholds"]
+    for k, v in thresholds.items():
         if v == 0:
             continue
 
@@ -151,7 +162,7 @@ def parse_threshold(guardian):
     return output
 
 
-def get_card_entry(card_name: str, cards: dict = None) -> str:
+def get_card_entry(card_name: str, cards: dict | None) -> Any | None:
     """
     Gets the card object from given card dictionary.
     """
@@ -159,8 +170,10 @@ def get_card_entry(card_name: str, cards: dict = None) -> str:
     if cards is None:
         cards = load_cards()
 
+    assert cards is not None
+
     for card in cards:
-        if get_card_name_url_form(card['name']) == get_card_name_url_form(card_name):
+        if get_card_name_url_form(card["name"]) == get_card_name_url_form(card_name):
             return card
 
     return None
@@ -184,10 +197,7 @@ def get_all_card_names(cards: dict):
     """
     assert cards is not None
 
-    return [
-        get_card_name_url_form(card['name'])
-        for card in cards
-    ]
+    return [get_card_name_url_form(card["name"]) for card in cards]
 
 
 def with_selenium(func):
@@ -195,6 +205,7 @@ def with_selenium(func):
     A decorator that provides a Selenium webdriver instance for functions requiring it
     and also makes sure that the webdriver gets closed properly after being used.
     """
+
     def inner1(*args):
         _browser = build_browser()
 
@@ -205,4 +216,5 @@ def with_selenium(func):
         func(*args, _browser)
 
         _browser.quit()
+
     return inner1

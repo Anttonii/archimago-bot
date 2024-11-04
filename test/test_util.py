@@ -1,55 +1,47 @@
+import pytest
+
 import src.util as util
 
-import unittest
 
-
-class TestUtil(unittest.TestCase):
-    def setUp(self):
-        # Use abundance as a test card for util functionalities
-        self.test_card = {
-            "name": "abundance",
-            "sets": [
-                {"name": "alpha"},
-                {"name": "beta"}
-            ],
-            "guardian": {
-                "thresholds": {
-                    "air": 0,
-                    "earth": 0,
-                    "fire": 0,
-                    "water": 2,
-                }
+@pytest.fixture
+def test_card():
+    """Use abundance as a test card for util functionalities"""
+    return {
+        "name": "abundance",
+        "sets": [{"name": "alpha"}, {"name": "beta"}],
+        "guardian": {
+            "thresholds": {
+                "air": 0,
+                "earth": 0,
+                "fire": 0,
+                "water": 2,
             }
-        }
-        return super().setUp()
-
-    def test_parse_sets(self):
-        """Test that checks that parse sets correctly parses card sets"""
-        sets = util.parse_sets(self.test_card)
-
-        self.assertIn("alpha", sets)
-        self.assertIn("beta", sets)
-        self.assertEqual(len(sets), 11)  # "alpha, beta"
-
-    def test_parse_threshold(self):
-        """Test that checks that parse thresholds correctly parses card thresholds"""
-        thresholds = util.parse_threshold(self.test_card['guardian'])
-
-        self.assertEqual(thresholds, "(W)(W)")
-
-    def test_get_card_name_url_form(self):
-        """Test that makes sure URL form is correctly formulated for all special cases"""
-        test_card_1 = "Wills-o\'-the-Wisp"
-        test_card_2 = "Merlin's Staff"
-        test_card_3 = "Fire Harpoons!"
-
-        self.assertEqual(util.get_card_name_url_form(
-            test_card_1), "wills_o_the_wisp")
-        self.assertEqual(util.get_card_name_url_form(
-            test_card_2), "merlins_staff")
-        self.assertEqual(util.get_card_name_url_form(
-            test_card_3), "fire_harpoons")
+        },
+    }
 
 
-if __name__ == "__main__":
-    unittest.main()
+def test_parse_sets(test_card):
+    """Test that checks that parse sets correctly parses card sets"""
+    sets = util.parse_sets(test_card)
+
+    assert "alpha" in sets
+    assert "beta" in sets
+    assert len(sets) == 11  # "alpha, beta"
+
+
+def test_parse_threshold(test_card):
+    """Test that checks that parse thresholds correctly parses card thresholds"""
+    thresholds = util.parse_threshold(test_card["guardian"])
+
+    assert thresholds == "(W)(W)"
+
+
+def test_get_card_name_url_form():
+    """Test that makes sure URL form is correctly formulated for all special cases"""
+    test_card_1 = "Wills-o'-the-Wisp"
+    test_card_2 = "Merlin's Staff"
+    test_card_3 = "Fire Harpoons!"
+
+    assert util.get_card_name_url_form(test_card_1) == "wills_o_the_wisp"
+    assert util.get_card_name_url_form(test_card_2) == "merlins_staff"
+    assert util.get_card_name_url_form(test_card_3) == "fire_harpoons"

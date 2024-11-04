@@ -5,3 +5,10 @@
 __pycache__
 .env
 activate.ps1
+
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.vscode/
+htmlcov/
+.coverage

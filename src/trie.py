@@ -2,7 +2,7 @@ from difflib import SequenceMatcher as SM
 from typing import List
 
 
-class Node():
+class Node:
     """
     A prefix tree node.
     """
@@ -13,19 +13,19 @@ class Node():
         self.word_node = False
 
 
-class Trie():
+class Trie:
     """
     A prefix tree.
     """
 
-    def __init__(self, words: list = None):
+    def __init__(self, words: list | None = None):
         """
         Initializes a new prefix tree.
 
         Alternatively can be provided a list of words for initialization.
         """
         self.root = Node()
-        self.word_list = []
+        self.word_list: list[str] = []
 
         if words is not None:
             self.insert_all(words)
@@ -42,9 +42,9 @@ class Trie():
         Inserts a new word into the prefix tree.
         """
         current = self.root
-        for (i, ch) in enumerate(word):
+        for i, ch in enumerate(word):
             if ch not in current.children:
-                prefix = word[0:i + 1]
+                prefix = word[0 : i + 1]
                 current.children[ch] = Node(prefix)
             current = current.children[ch]
         current.word_node = True
@@ -95,7 +95,7 @@ class Trie():
 
         return count
 
-    def starts_with(self, prefix: str) -> List[str]:
+    def starts_with(self, prefix: str) -> List[str] | None:
         """
         Checks the prefix tree for words starting with given prefix.
         """
@@ -119,10 +119,11 @@ class Trie():
 
         return words
 
-    def fuzzy_match(self, card_name: str) -> tuple[float, str]:
+    def fuzzy_match(self, card_name: str) -> tuple[float, str] | None:
         """
         Returns the best rating fuzzy word match from trie.
         """
+
         def filter_func(s1, s2):
             """
             Filter based on first four characters when possible
@@ -136,14 +137,13 @@ class Trie():
 
             return False
 
-        # Simple pruning where we only evalute the words with the same starting letter.
-        pruned_list = list(
+        # Simple pruning where we only evaluate the words with the same starting letter.
+        pruned_list: list[str] = list(
             filter(lambda x: filter_func(card_name, x), self.word_list)
         )
 
         matched_words = [
-            (SM(None, card_name, word).ratio(), word)
-            for word in pruned_list
+            (SM(None, card_name, word).ratio(), word) for word in pruned_list
         ]
 
         if len(matched_words) == 0:

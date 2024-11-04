@@ -1,65 +1,67 @@
-import unittest
+import pytest
 
 from src.trie import Trie
 
 
-class TrieTests(unittest.TestCase):
-    def setUp(self):
-        """Sets up a prefix tree with words 'test' and 'words'"""
-        self.trie = Trie()
-        self.trie.insert("test")
-        self.trie.insert("words")
-
-    def test_size(self):
-        """Test for checking size of trie after insert"""
-        self.assertEqual(self.trie.size(), 10)
-
-        new_trie = Trie()
-        # all tries have a root element so their size is always greater than 1
-        self.assertEqual(new_trie.size(), 1)
-
-    def test_count(self):
-        """Test for checking word count after insert"""
-        self.assertEqual(self.trie.count(), 2)
-
-        new_trie = Trie()
-        self.assertEqual(new_trie.count(), 0)
-
-    def test_find(self):
-        """Test for checking whether or not word is found in the Trie"""
-        self.assertIsNotNone(self.trie.find("test"))
-        self.assertEqual(self.trie.find("test"), "test")
-        self.assertIsNone(self.trie.find("notintrie"))
-
-    def test_insert(self):
-        """Tests that inserting a word into trie does not change above tests"""
-        self.trie.insert("word_new")
-        # this should not have no effect on the trie
-        self.trie.insert("word_new")
-        self.assertEqual(self.trie.size(), 14)  # only adds 4 new suffixes
-        self.assertEqual(self.trie.count(), 3)
-        self.assertEqual(self.trie.find("word_new"), "word_new")
-
-    def test_insert_all(self):
-        """Tests that inserting all words in a list works"""
-        self.trie.insert_all(["wordz", "test2", "trie"])
-        self.assertEqual(self.trie.size(), 15)
-        self.assertEqual(self.trie.count(), 5)
-
-    def test_starts_with(self):
-        """Tests that starts_with function gives correct suffixes"""
-        self.trie.insert("wordz")
-        self.assertEqual(self.trie.starts_with("te"), ["test"])
-        self.assertEqual(self.trie.starts_with(
-            "word"), ["wordz", "words"])
-
-    def test_fuzzy_match(self):
-        """Test that fuzzy matching gives correct possible words"""
-        self.trie.insert_all(["this_is_a_test_sentence"])
-        self.assertEqual(self.trie.fuzzy_match(
-            "dis_is_a_test_sentence")[1], "this_is_a_test_sentence")
-        self.assertIsNone(self.trie.fuzzy_match("low_ratio"))
+@pytest.fixture
+def trie():
+    """Sets up a prefix tree with words 'test' and 'words'"""
+    trie = Trie()
+    trie.insert("test")
+    trie.insert("words")
+    return trie
 
 
-if __name__ == "__main__":
-    unittest.main()
+def test_size(trie):
+    """Test for checking size of trie after insert"""
+    assert trie.size() == 10
+
+    new_trie = Trie()
+    # all tries have a root element so their size is always greater than 1
+    assert new_trie.size() == 1
+
+
+def test_count(trie):
+    """Test for checking word count after insert"""
+    assert trie.count() == 2
+
+    new_trie = Trie()
+    assert new_trie.count() == 0
+
+
+def test_find(trie):
+    """Test for checking whether or not word is found in the Trie"""
+    assert trie.find("test") is not None
+    assert trie.find("test") == "test"
+    assert trie.find("notintrie") is None
+
+
+def test_insert(trie):
+    """Tests that inserting a word into trie does not change above tests"""
+    trie.insert("word_new")
+    # this should not have no effect on the trie
+    trie.insert("word_new")
+    assert trie.size() == 14  # only adds 4 new suffixes
+    assert trie.count() == 3
+    assert trie.find("word_new") == "word_new"
+
+
+def test_insert_all(trie):
+    """Tests that inserting all words in a list works"""
+    trie.insert_all(["wordz", "test2", "trie"])
+    assert trie.size() == 15
+    assert trie.count() == 5
+
+
+def test_starts_with(trie):
+    """Tests that starts_with function gives correct suffixes"""
+    trie.insert("wordz")
+    assert trie.starts_with("te") == ["test"]
+    assert trie.starts_with("word") == ["wordz", "words"]
+
+
+def test_fuzzy_match(trie):
+    """Test that fuzzy matching gives correct possible words"""
+    trie.insert_all(["this_is_a_test_sentence"])
+    assert trie.fuzzy_match("dis_is_a_test_sentence")[1] == "this_is_a_test_sentence"
+    assert trie.fuzzy_match("low_ratio") is None
