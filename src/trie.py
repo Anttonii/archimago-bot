@@ -18,9 +18,17 @@ class Trie():
     A prefix tree.
     """
 
-    def __init__(self):
+    def __init__(self, words: list = None):
+        """
+        Initializes a new prefix tree.
+
+        Alternatively can be provided a list of words for initialization.
+        """
         self.root = Node()
         self.word_list = []
+
+        if words is not None:
+            self.insert_all(words)
 
     def insert_all(self, words):
         """

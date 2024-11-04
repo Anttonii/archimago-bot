@@ -1,6 +1,6 @@
 import src.util as util
 import src.curiosa as curiosa
-from src import DiscordClient
+from src import DiscordClient, Trie
 
 from src.util import with_selenium
 
@@ -70,12 +70,17 @@ def card(card_name: List[str]) -> str:
     """
     Gets a card by name and returns information associated with it.
     """
-    print(curiosa.get_card_from_name(" ".join(card_name)))
+    cn, pt, cards = command_preq(card_name)
+    print(curiosa.get_card_from_name(cn, pt, cards))
 
 
 @app.command()
 def faq(card_name: List[str]) -> str:
-    print(curiosa.get_faq_entries(util.get_card_name_url_form(' '.join(card_name))))
+    """
+    Gets a cards FAQ fields scraped from Curiosa.io
+    """
+    cn, pt, cards = command_preq(card_name)
+    print(curiosa.get_faq_entries(cn, pt, cards))
 
 
 @app.command()
@@ -84,6 +89,19 @@ def download(output: str = 'data'):
     Downloads card data from the official curiosa.io API and saves it into a file.
     """
     curiosa.download_cards_json(output)
+
+
+def command_preq(card_name: str) -> tuple[str, Trie, dict]:
+    """
+    Shorthand for initializing card name suggestions in commands
+    """
+    cards = util.load_cards()
+
+    return (
+        util.get_card_name_url_form(' '.join(card_name)),
+        Trie(util.get_all_card_names(cards)),
+        cards
+    )
 
 
 if __name__ == "__main__":

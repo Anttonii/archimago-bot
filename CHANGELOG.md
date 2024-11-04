@@ -8,6 +8,14 @@ Notable changes and additions will be logged into this file.
 
 - Fuzzy matching for card names
 
+### Changed
+
+- `faq` and `cimg` commands now also offer card name suggestions
+
+### Fixes
+
+- `faq` command no longer sends the request if the card is not found internally.
+
 ## [1.0.5] - 2024-2-11
 
 ### Added

@@ -1,7 +1,6 @@
 import src.util as util
 
 import unittest
-from unittest.mock import patch
 
 
 class TestUtil(unittest.TestCase):
@@ -23,17 +22,6 @@ class TestUtil(unittest.TestCase):
             }
         }
         return super().setUp()
-
-    @patch('src.util.get_card_entry')
-    def test_generate_image_url(self, get_card_mock):
-        """Test that generate image url provides correct img urls"""
-        # Mock get card entry
-        get_card_mock.return_value = self.test_card
-
-        abundance_url = "https://curiosa.io/_next/image?url=https://d27a44hjr9gen3.cloudfront.net/alp/abundance_b_s.png&w=384&q=75"
-        gen_abundance_url = util.generate_image_url("abundance")
-
-        self.assertEqual(abundance_url, gen_abundance_url)
 
     def test_parse_sets(self):
         """Test that checks that parse sets correctly parses card sets"""

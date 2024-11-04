@@ -61,7 +61,12 @@ class DiscordClient(discord.Client):
         """
         card_name = util.get_card_name_url_form(' '.join(card_name))
 
-        faq_entries = curiosa.get_faq_entries(card_name)
+        faq_entries = curiosa.get_faq_entries(
+            card_name,
+            self.prefixTree,
+            self.cards
+        )
+
         # preserve 6 space for code block
         truncated = util.message_truncate(faq_entries, 6)
 
@@ -113,14 +118,26 @@ class DiscordClient(discord.Client):
 
         # Safe to assume cards is not none here since we exit if it is
         received_output = curiosa.get_card_from_name(
-            card_name, self.prefixTree, self.cards)
+            card_name,
+            self.prefixTree,
+            self.cards
+        )
         await ctx.send(util.code_blockify(received_output))
 
     async def get_card_image(self, ctx, card_name):
         """
         Gets card image in URL form
         """
-        await ctx.send(util.get_card_image_url(card_name, self.cards))
+        image_url = curiosa.generate_image_url(
+            ' '.join(card_name),
+            self.prefixTree,
+            self.cards
+        )
+
+        if not image_url.startswith("https://"):
+            image_url = util.code_blockify(image_url)
+
+        await ctx.send(image_url)
 
     async def on_ready(self):
         print("Archimago now running.")
@@ -171,8 +188,7 @@ class DiscordClient(discord.Client):
 
         self._browser = browser
         self.cards = util.load_cards()
-        self.prefixTree = Trie()
-        self.prefixTree.insert_all(util.get_all_card_names(self.cards))
+        self.prefixTree = Trie(util.get_all_card_names(self.cards))
 
         async def runner():
             async with self:

@@ -190,11 +190,13 @@ def request_faq(card_name: str):
     return card_data['faqs']
 
 
-def get_faq_entries(card_name: str):
+def get_faq_entries(card_name: str, pt: Trie, cards: dict):
     """
     Makes a request for cards FAQ and returns it in string form if the request is succesful
     """
     output = f"FAQ entries found for card: {card_name}\n\n"
+    if util.get_card_entry(card_name, cards) is None:
+        return get_card_name_suggestion(card_name, pt)
 
     faq = request_faq(card_name)
     if isinstance(faq, dict):
@@ -303,18 +305,32 @@ def get_card_from_name(card_name: str, pt: Trie = None, cards: dict = None) -> s
     Returns card information from given card name.
     """
     card = util.get_card_entry(card_name, cards)
-    prefixes = pt.starts_with(card_name)
-    fuzzy = pt.fuzzy_match(card_name)
-
-    if fuzzy is None:
-        prefix = "." if prefixes is None else f", did you mean: {prefixes[0]}?"
-    else:
-        prefix = f", did you mean: {fuzzy[1]}?"
 
     if card is None:
-        return f"Could not find card by card name {card_name}{prefix}"
+        return get_card_name_suggestion(card_name, pt)
     else:
         return prettify_card(card)
+
+
+def generate_image_url(card_name: str, pt: Trie, cards: dict) -> str:
+    """
+    Generates an image URL from a given card name.
+    """
+    base_url = "https://curiosa.io/_next/image?url=https://d27a44hjr9gen3.cloudfront.net/"
+    extension = "_b_s.png&w=384&q=75"
+
+    card = util.get_card_entry(card_name, cards)
+    if card is None:
+        return get_card_name_suggestion(card_name, pt)
+
+    card_name = util.get_card_name_url_form(card['name'])
+
+    set = util.parse_sets(card)
+
+    # Take the first set and the first 3 characters converted to lower case
+    set_name = set[0:3].lower()
+
+    return base_url + set_name + "/" + card_name + extension
 
 
 def download_cards_json(output: str = "data"):
@@ -343,3 +359,22 @@ def download_cards_json(output: str = "data"):
 
     print(
         f"Card data succesfully downloaded and saved into: {output_path}!")
+
+
+def get_card_name_suggestion(card_name: str, pt: Trie) -> str:
+    """
+    Returns a string that gives card name suggestions when given card
+    name is invalid.
+    """
+    if pt is None:
+        return f"Could not find card by card name {card_name}."
+
+    prefixes = pt.starts_with(card_name)
+    fuzzy = pt.fuzzy_match(card_name)
+
+    if fuzzy is None:
+        prefix = "." if prefixes is None else f", did you mean: {prefixes[0]}?"
+    else:
+        prefix = f", did you mean: {fuzzy[1]}?"
+
+    return f"Could not find card by card name {card_name}{prefix}"

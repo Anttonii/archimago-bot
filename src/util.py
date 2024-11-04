@@ -166,24 +166,6 @@ def get_card_entry(card_name: str, cards: dict = None) -> str:
     return None
 
 
-def generate_image_url(card_name: str, cards: dict = None) -> str:
-    """
-    Generates an image URL from a given card name.
-    """
-    base_url = "https://curiosa.io/_next/image?url=https://d27a44hjr9gen3.cloudfront.net/"
-    extension = "_b_s.png&w=384&q=75"
-
-    card = get_card_entry(card_name, cards)
-    card_name = get_card_name_url_form(card['name'])
-
-    set = parse_sets(card)
-
-    # Take the first set and the first 3 characters converted to lower case
-    set_name = set[0:3].lower()
-
-    return base_url + set_name + "/" + card_name + extension
-
-
 def check_channel(ctx):
     """
     Checks if the channel is a private channel or group channel
@@ -196,16 +178,9 @@ def check_channel(ctx):
     return True
 
 
-def get_card_image_url(card_name, cards: dict = None) -> str:
-    """
-    Returns the curiosa.io image url from an unparsed card name parameter
-    """
-    return generate_image_url(' '.join(card_name), cards)
-
-
 def get_all_card_names(cards: dict):
     """
-    Extracts all card names from cards.json file.
+    Extracts all card names from a cards dictionary file.
     """
     return [
         get_card_name_url_form(card['name'])
