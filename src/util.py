@@ -97,7 +97,7 @@ def message_truncate(message: str, preserve: int) -> str:
     Utility function that truncates message into dicords max character limit of 2000.
     """
     # Removes all lettes after 2000 and replaces last 3 with dots
-    # extra value can be set so that we preserve more space, for example when using code_blockify.
+    # preserve value can be set so that we preserve more space, for example when using code_blockify.
     if len(message) > 2000:
         message = message[0:1997 - preserve]
         message += "..."
@@ -166,7 +166,7 @@ def get_card_entry(card_name: str, cards: dict = None) -> str:
     return None
 
 
-def check_channel(ctx):
+def check_channel(ctx) -> bool:
     """
     Checks if the channel is a private channel or group channel
 
@@ -182,6 +182,8 @@ def get_all_card_names(cards: dict):
     """
     Extracts all card names from a cards dictionary file.
     """
+    assert cards is not None
+
     return [
         get_card_name_url_form(card['name'])
         for card in cards

@@ -7,6 +7,7 @@ Notable changes and additions will be logged into this file.
 ### Added
 
 - Fuzzy matching for card names
+- Discord bots status changes randomly every 15 minutes.
 
 ### Changed
 
