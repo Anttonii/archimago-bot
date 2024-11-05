@@ -45,3 +45,11 @@ def test_get_card_name_url_form():
     assert util.get_card_name_url_form(test_card_1) == "wills_o_the_wisp"
     assert util.get_card_name_url_form(test_card_2) == "merlins_staff"
     assert util.get_card_name_url_form(test_card_3) == "fire_harpoons"
+
+
+def test_contains_regex():
+    """Test that makes sure contains regex recognizes regex pattern in a string"""
+    test_string = "he[llo] world"
+
+    assert util.contains_regex(test_string, [r"\[(.*?)\]"])
+    assert not util.contains_regex(test_string, [r"\[!(.*?)\]"])

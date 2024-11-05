@@ -3,6 +3,7 @@ from typing import Any
 import json
 import os
 import platform
+import re
 
 import chromedriver_autoinstaller
 from discord import DMChannel, GroupChannel
@@ -218,3 +219,14 @@ def with_selenium(func):
         _browser.quit()
 
     return inner1
+
+
+def contains_regex(s: str, p: list[str]) -> bool:
+    """
+    Checks if string contains some regex pattern.
+    """
+    for pattern in p:
+        reg = re.compile(pattern)
+        if reg.search(s):
+            return True
+    return False
