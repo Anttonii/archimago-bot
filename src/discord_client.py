@@ -9,7 +9,16 @@ import discord
 from discord import CustomActivity
 from dotenv import load_dotenv
 
-from . import curiosa, util
+from src.commands import (
+    BaseCommand,
+    CardCommand,
+    CimgCommand,
+    DeckCommand,
+    FaqCommand,
+    OverlapCommand,
+)
+
+from . import util
 from .trie import Trie
 
 load_dotenv()
@@ -49,6 +58,7 @@ class DiscordClient(discord.Client):
 
         self._browser = None
         self.current_status = ""
+        self.commands: list[BaseCommand] = []
 
         # Store all replies sent by the bot and the time they are sent
         self.replies: list[tuple[int, int, float]] = list()
@@ -80,25 +90,15 @@ class DiscordClient(discord.Client):
         command = split_command[0][1:]
         parameters = split_command[1:]
 
-        match command:
-            case "deck":
-                return self.get_deck(msg, parameters)
-            case "overlap":
-                return self.get_overlap(msg, parameters)
-            case "card":
-                return self.get_card(parameters)
-            case "cimg":
-                return self.get_card_image(parameters)
-            case c if c in ["faq", "faqs"]:
-                return self.get_faq(parameters)
-            case "stop":
-                if DISCORD_BOT_MODE == "debug":
-                    await self.close_client()
-                    return None
-            case _:
-                return self.handle_incorrect_command(command)
+        for comm in self.commands:
+            if comm.is_command_suffix(command):
+                return comm.get_content(msg, parameters)
 
-        return None
+        if command == "stop" and DISCORD_BOT_MODE == "debug":
+            await self.close_client()
+
+        # If command was not found in registered commands, return the base case.
+        return self.handle_incorrect_command(util.code_blockify(command))
 
     def handle_regex(self, msg) -> str | None:
         """
@@ -122,82 +122,6 @@ class DiscordClient(discord.Client):
             return self.get_card_image(card_name)
 
         return None
-
-    def get_faq(self, card_name):
-        """
-        Gets FAQ entries from curiosa.io for given card name
-        """
-        card_name = util.get_card_name_url_form(" ".join(card_name))
-
-        faq_entries = curiosa.get_faq_entries(card_name, self.prefixTree, self.cards)
-
-        # preserve 6 space for code block
-        truncated = util.message_truncate(faq_entries, 6)
-
-        return util.code_blockify(truncated)
-
-    def get_deck(self, msg, req):
-        """
-        Gets cards belonging to a deck from a curiosa.io URL or ID.
-        """
-        ctx = msg.channel
-
-        if not util.check_channel(ctx):
-            return "Deck command can currently only be used on servers, not in private messages."
-
-        if len(req) > 1:
-            return "Incorrect usage, use only 1 deck parameter at a time."
-
-        split_request = req[0].split("/")
-
-        if len(split_request) > 1:
-            received_output = curiosa.get_deck_from_url(req[0], False, self._browser)
-        else:
-            received_output = curiosa.get_deck_from_id(req[0], False, self._browser)
-
-        return util.code_blockify(received_output)
-
-    def get_overlap(self, msg, request) -> str:
-        """
-        Get overlapping cards between decks having provided at least 2 deck IDs.
-        """
-        ctx = msg.channel
-
-        if not util.check_channel(ctx):
-            return "Overlap command can currently only be used on servers, not in private messages."
-
-        # Avoid blocking the whole app by providing a giant list of ids.
-        if len(request) > 3:
-            request = request[0:3]
-
-        received_output = curiosa.get_overlapping_cards(request, self._browser)
-        return util.code_blockify(received_output)
-
-    def get_card(self, parameters) -> str:
-        """
-        Get card data by providing a card name.
-        """
-        card_name = util.get_card_name_url_form(" ".join(parameters))
-
-        # Safe to assume cards is not none here since we exit if it is
-        received_output = curiosa.get_card_from_name(
-            card_name, self.prefixTree, self.cards
-        )
-
-        return util.code_blockify(received_output)
-
-    def get_card_image(self, card_name) -> str:
-        """
-        Gets card image in URL form
-        """
-        image_url = curiosa.generate_image_url(
-            " ".join(card_name), self.prefixTree, self.cards
-        )
-
-        if not image_url.startswith("https://"):
-            image_url = util.code_blockify(image_url)
-
-        return image_url
 
     def handle_incorrect_command(self, command) -> str:
         """
@@ -322,6 +246,16 @@ class DiscordClient(discord.Client):
         self._browser = browser
         self.cards = util.load_cards()
         self.prefixTree = Trie(util.get_all_card_names(self.cards))
+
+        self.commands = list(
+            [
+                CardCommand(["card"], self.prefixTree, self.cards),
+                FaqCommand(["faq", "faqs"], self.prefixTree, self.cards),
+                CimgCommand(["cimg"], self.prefixTree, self.cards),
+                DeckCommand(["deck"], self._browser),
+                OverlapCommand(["overlap"], self._browser),
+            ]
+        )
 
         async def runner():
             async with self:

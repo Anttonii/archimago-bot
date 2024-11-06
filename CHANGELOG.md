@@ -15,6 +15,7 @@ Notable changes and additions will be logged into this file.
 
 - `faq` and `cimg` commands now also offer card name suggestions
 - Now replies to command messages instead of just sending messages
+- Commands are now split into individual files, implementing new commands require having `BaseCommand` as superclass.
 
 ### Fixes
 
