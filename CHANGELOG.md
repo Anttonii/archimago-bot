@@ -8,7 +8,8 @@ Notable changes and additions will be logged into this file.
 
 - New commands!
   - `rulebook` returns the link to the current iteration of the rulebook.
-  - `term` return information related to the requested term.
+  - `term` returns information related to the requested term.
+  - `help` returns information about the bot and the implemented commands.
 
 ### Changed
 

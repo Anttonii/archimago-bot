@@ -7,6 +7,7 @@
   - Bot now edits messages if the message replied is edited.
 - \[x\] Add term explanations from the official rulebook
 - \[x\] Add command for retrieving the rulebook
+- \[x\] Add back the help command
 
 ## TODO
 
@@ -14,7 +15,6 @@
 - \[ \] When caching images, rotate sites by 90 degrees.
 - \[ \] Add set parameterization to retrieving cards and images
 - \[ \] Add configurability options
-- \[ \] Add back the help command
 - \[ \] If multiple cards are referenced in an inter-message regex, reply a list of links to curiosa.
 
 ## In consideration

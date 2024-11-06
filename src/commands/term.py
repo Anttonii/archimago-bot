@@ -6,6 +6,10 @@ from src.trie import Trie
 
 
 class TermCommand(BaseCommand):
+    """
+    Get information about term.
+    """
+
     def __init__(self, command: list[str], terms: dict):
         self.terms = terms
         self.pt = Trie(list([term for term in self.terms["term"]]))
@@ -14,7 +18,9 @@ class TermCommand(BaseCommand):
 
     def get_content(self, msg, parameters) -> str:
         """
-        Get information about term.
+        Usage:
+
+        !term <term> returns an explanation for the given term.
         """
         # We can use the same logic here for parsing the term
         term = util.get_card_name_url_form(" ".join(parameters))

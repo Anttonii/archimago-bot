@@ -6,6 +6,10 @@ import src.curiosa as curiosa
 
 
 class FaqCommand(BaseCommand):
+    """
+    Gets FAQ entries from curiosa.io for given card name.
+    """
+
     def __init__(self, command: list[str], pt: Trie, cards: dict):
         self.pt = pt
         self.cards = cards
@@ -14,7 +18,10 @@ class FaqCommand(BaseCommand):
 
     def get_content(self, msg, parameters) -> str:
         """
-        Gets FAQ entries from curiosa.io for given card name
+        Usage:
+
+        !faq <card_name> returns the FAQ entries found for the given card.
+        !faqs <card_name> same as above.
         """
         card_name = util.get_card_name_url_form(" ".join(parameters))
 

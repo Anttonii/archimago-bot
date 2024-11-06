@@ -6,11 +6,18 @@ CURIOSA_RULEBOOK_URL = (
 
 
 class RulebookCommand(BaseCommand):
+    """
+    Get URL for the official rulebook.
+    """
+
     def __init__(self, command: list[str]):
         super().__init__(command)
 
     def get_content(self, msg, parameters) -> str:
         """
-        Get URL for the official rulebook.
+        Usage:
+
+        !rulebook returns the link to the official rulebook.
+        !rb # same as above
         """
         return CURIOSA_RULEBOOK_URL

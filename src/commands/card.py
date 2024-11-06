@@ -6,6 +6,10 @@ import src.curiosa as curiosa
 
 
 class CardCommand(BaseCommand):
+    """
+    Get information about a card by providing a card name.
+    """
+
     def __init__(self, command: list[str], pt: Trie, cards: dict):
         self.pt = pt
         self.cards = cards
@@ -14,7 +18,9 @@ class CardCommand(BaseCommand):
 
     def get_content(self, msg, parameters) -> str:
         """
-        Get card data by providing a card name.
+        Usage:
+
+        !card <card_name> returns information about given card name.
         """
         card_name = util.get_card_name_url_form(" ".join(parameters))
 

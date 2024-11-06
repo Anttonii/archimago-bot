@@ -201,3 +201,44 @@ FAQ entries found for card: midland_army
 Q: Are Foot Soldiers Ordinary earth minions?
 A: Yes!
 ```
+
+### help
+
+Builds a help command from all registered commands' individual pydocs. Also provides information about individual commands when using a command suffix as a parameter.
+
+Usage:
+
+```
+!help
+```
+
+Output:
+
+```
+Archimago provide the following commands:
+
+- card: Get information about a card by providing a card name.
+- faq, faqs: Gets FAQ entries from curiosa.io for given card name.
+- cimg: Gets card image in URL form.
+- deck: Gets cards belonging to a deck from a curiosa.io URL or ID.
+- overlap: Get overlapping cards between decks having provided at least 2 deck IDs.
+- term: Get information about term.
+- rulebook, rb: Get URL for the official rulebook.
+- help: Returns this message.
+```
+
+Usage:
+
+```
+!help deck
+```
+
+Output:
+
+```
+Usage:
+
+
+!deck <id> returns the deck of cards from given curiosa.io deck ID.
+!deck <url> returns the deck of cards from given curiosa.io deck URL.
+```

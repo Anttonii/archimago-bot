@@ -18,6 +18,7 @@ from src.commands import (
     OverlapCommand,
     TermCommand,
     RulebookCommand,
+    HelpCommand,
 )
 
 from . import util
@@ -261,6 +262,8 @@ class DiscordClient(discord.Client):
                 RulebookCommand(["rulebook", "rb"]),
             ]
         )
+
+        self.commands.append(HelpCommand(["help"], self.commands))
 
         async def runner():
             async with self:
