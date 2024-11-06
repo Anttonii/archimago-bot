@@ -75,13 +75,13 @@ def load_cards(json_path: str = "data/cards.json"):
     return data
 
 
-def load_terms(toml_path: str = "data/terms.toml"):
+def load_toml(toml_path: str):
     """
-    Parse keywords and their explanations from keywords TOML.
+    Parse toml file into a dictionary.
     """
     if not os.path.exists(toml_path):
         raise Exception(
-            f"Failed to load keywords.toml from path: {toml_path}, file not found."
+            f"Failed to load toml file from path: {toml_path}, file not found."
         )
 
     try:

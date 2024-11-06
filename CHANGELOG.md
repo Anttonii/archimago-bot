@@ -2,6 +2,12 @@
 
 Notable changes and additions will be logged into this file.
 
+## \[1.0.8\] - ?
+
+### Added
+
+- Configurability options.
+
 ## \[1.0.7\] - 2024-6-11
 
 ### Added

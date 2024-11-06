@@ -43,7 +43,7 @@ class HelpCommand(BaseCommand):
         """
         Builds the help commands content.
         """
-        output = "Archimago provide the following commands:\n\n"
+        output = "Archimago provides the following commands:\n\n"
         for command in self.commands:
             output += (
                 "- " + util.boldify(", ".join(command.get_command_suffix())) + ": "

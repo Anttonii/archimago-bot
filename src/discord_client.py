@@ -40,15 +40,6 @@ STATUS_MESSAGES = [
     "Attending the Royal Wedding..",
 ]
 
-# The time it takes for the status to randomly change in seconds.
-STATUS_UPDATE_TIME: int = 900
-
-# The time it takes for the replies to get pruned in seconds.
-PRUNE_REPLIES_TIME: int = 10
-
-# Command prefix character, messages starting with this are considered commands.
-COMMAND_PREFIX = "!"
-
 
 class DiscordClient(discord.Client):
     def __init__(self, *, intents=None, **options):
@@ -85,7 +76,7 @@ class DiscordClient(discord.Client):
         """
         content = msg.content
 
-        if content[0] != COMMAND_PREFIX:
+        if content[0] != self.config["command_prefix"]:
             return None
 
         split_command = content.split(" ")
@@ -142,10 +133,10 @@ class DiscordClient(discord.Client):
         current_time: int = 0
 
         while True:
-            if current_time % STATUS_UPDATE_TIME == 0:
+            if current_time % self.config["status_update_time"] == 0:
                 await self.presence_change()
 
-            if current_time % PRUNE_REPLIES_TIME == 0:
+            if current_time % self.config["prune_replies_time"] == 0:
                 self.prune_replies()
 
             current_time += 1
@@ -248,8 +239,9 @@ class DiscordClient(discord.Client):
 
         self._browser = browser
         self.cards = util.load_cards()
+        self.terms = util.load_toml("data/terms.toml")
+        self.config = util.load_toml("data/config.toml")
         self.prefixTree = Trie(util.get_all_card_names(self.cards))
-        self.terms = util.load_terms()
 
         self.commands = list(
             [
