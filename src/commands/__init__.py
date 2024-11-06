@@ -4,3 +4,5 @@ from .faq import FaqCommand  # noqa
 from .deck import DeckCommand  # noqa
 from .cimg import CimgCommand  # noqa
 from .overlap import OverlapCommand  # noqa
+from .term import TermCommand  # noqa
+from .rulebook import RulebookCommand  # noqa

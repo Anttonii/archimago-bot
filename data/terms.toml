@@ -1,0 +1,225 @@
+# Term.toml defines terms that can be found in cards explains them.
+#
+# Each term follows the following schema:
+#
+# [term.term]
+# alternatives = [] # If the term has alternative terms that hold the same meaning.
+# text = """
+# The text explanation of the term
+# """
+
+[term]
+
+[term.adjacent]
+text = """
+Refers to the card’s own square, and the squares
+that it shares a border with.
+"""
+
+[term.airborne]
+text = """
+This minion may fly while on the surface, gaining
+the following benefits:
+
+When taking a step this minion may move
+diagonally and can only be intercepted by other
+units if they have the Airborne or Ranged ability.
+
+This minion cannot be targeted by attacks, unless
+the attacking unit has the Airborne ability.
+"""
+
+[term.burrowing]
+text = """
+This unit can be safely summoned to, exist in, and
+operate normally underground. When taking a
+step, it can move from the surface of a land site to
+the underground level there, or vice versa.
+"""
+
+[term.charge]
+text = """
+This unit can tap, or be tapped, to pay for costs
+associated with any ability on the turn it is
+summoned.
+"""
+
+[term.deathrite]
+text = """
+When this unit dies, do what is stated before placing
+it in the cemetery.
+"""
+
+[term.deaths_door]
+text = """
+When an Avatar’s life is reduced to 0, they are now
+at death’s door and can no longer gain life. At that
+moment, the Avatar becomes immune to damage
+for the rest of the current turn. After that brief
+and desperate window, any damage dealt to the
+Avatar is a death blow, ending the game.
+"""
+
+[term.disable]
+alternatives = ["disabled"]
+text = """
+While disabled, a minion loses all abilities
+(including basic abilities like Move and Attack),
+doesn’t strike when fighting, can’t cast spells, and
+can’t take any action granted by another card or
+effect (ie. strike, shoot a projectile, take a step, etc.).
+A disabled minion can still be forcibly moved or
+tapped by effects
+"""
+
+[term.genesis]
+text = """
+When this card enters the realm, do what is stated.
+"""
+
+[term.immobile]
+alternatives = ["immobilized", "immobilised"]
+text = """
+This card cannot move itself, and cannot use the
+Move and Attack, Intercept, or Defend abilities.
+"""
+
+[term.lance]
+text = """
+A minion with the Lance keyword enters play
+carrying a lance artifact token. They could use it for
+themselves or give it to another minion. The first
+time a unit strikes while carrying a lance, it deals
+an extra damage and strikes first (see page 23)
+if in a fight. Then the lance breaks.
+
+Lance tokens are artifacts for all intents and
+purposes. They can be picked up and dropped
+(and stolen), just like other artifacts. When they
+are broken, they are removed from the realm like
+other tokens.
+"""
+
+[term.lethal]
+text = """
+Any strictly positive amount of damage this card
+deals to a minion is enough to kill.
+"""
+
+[term.life]
+alternatives = ["health"]
+text = """
+Life represents the amount of damage that your
+Avatar can endure before it is placed on death’s
+door. As your Avatar incurs damage, its overall life
+will decrease accordingly.
+"""
+
+[term.mana]
+text = """
+Mana can come from several sources, but sites are
+the most common. When they first come into play
+as well as at the start of your turn, sites provide
+one mana each. Other cards might add to this total.
+You use this mana to cast spells or activate abilities.
+At the end of your turn, any remaining mana is lost,
+whether or not you used it that turn.
+"""
+
+[term.movement]
+text = """
+X here is defined as part of the term.
+
+This unit may move up to X additional steps when
+using the Move and Attack or Defend abilities. To
+move multiple steps at once, choose a destination
+and a path to it then traverse that path one step at
+a time. You may need to resolve automatic triggers
+(or apply “always on” passive abilities), some of
+which may prematurely stop the motion of the
+unit.
+"""
+
+[term.nearby]
+text = """
+Refers to the card’s own square, and all squares
+that surround it, including those diagonally.
+"""
+
+[term.projectile]
+alternatives = ["projectiles"]
+text = """
+A projectile’s flight begins at the shooting unit’s
+location and travels within the same region in a
+cardinal direction. Its flight continues until it either
+reaches the edge of its region or it reaches the first
+unit (enemy or ally) along its path, ignoring any
+allies at the projectile’s starting location. Different
+projectiles will have different effects, but will most
+often deal damage to the impacted unit.
+
+In the event of multiple valid units, the player
+that fired the projectile chooses which unit the
+projectile hits.
+"""
+
+[term.ranged]
+text = """
+X here is defined as part of the term.
+
+This unit has “Tap → Shoot a projectile that stops
+after 1 (or X) steps. Strike the impacted unit”. This
+unit may also intercept Airborne units flying over
+them.
+"""
+
+[term.silence]
+alternatives = ["silenced"]
+text = """
+A card that is silenced loses all printed and granted
+abilities.
+Avatars cannot be silenced.
+"""
+
+[term.spellcaster]
+text = """
+This card may cast spells.
+"""
+
+[term.stealth]
+text = """
+Minions with Stealth cannot be targeted by spells
+or abilities from your opponents, they cannot be
+attacked, intercepted, or defended against, and
+projectiles cannot hit them.
+
+Stealth is tracked with a stealth token.
+
+Minions lose Stealth after they activate a special
+ability, deal damage, or attack. When this happens,
+remove the Stealth token.
+"""
+
+[term.submerge]
+text = """
+This unit can be safely summoned to, exist in, and
+operate normally underwater. When taking a step,
+it can move from the surface of a water site to the
+underwater level there, or vice versa.
+"""
+
+[term.voidwalk]
+text = """
+This unit can be summoned to any void location
+and safely exist and operate there. When taking a
+step it can move into an adjacent void, or out of
+the void and onto the surface of an adjacent site
+(or directly to the subsurface if they can operate
+there).
+"""
+
+[term.unique]
+text = """
+You may include one copy of a card that has the
+term “Unique” in its type line.
+"""

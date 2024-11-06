@@ -12,6 +12,7 @@ from selenium.webdriver.chrome.options import Options as ChromeOptions
 from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.firefox.options import Options as FirefoxOptions
 from selenium.webdriver.firefox.service import Service as FirefoxService
+import toml
 
 
 def build_browser():
@@ -53,6 +54,43 @@ def build_browser():
         return None
 
 
+def load_cards(json_path: str = "data/cards.json"):
+    """
+    Loads cards from cards.json into memory for quick retrieval.
+    """
+    if not os.path.exists(json_path):
+        raise Exception(
+            f"Failed to load cards.json from path: {json_path}, file not found."
+        )
+
+    with open(json_path, "r", encoding="utf-8") as json_file:
+        try:
+            data = json.load(json_file)
+        except json.JSONDecodeError:
+            print(
+                f"Failed to load {json_path}, the file at path is an invalid JSON file."
+            )
+            return None
+
+    return data
+
+
+def load_terms(toml_path: str = "data/terms.toml"):
+    """
+    Parse keywords and their explanations from keywords TOML.
+    """
+    if not os.path.exists(toml_path):
+        raise Exception(
+            f"Failed to load keywords.toml from path: {toml_path}, file not found."
+        )
+
+    try:
+        parsed_toml = toml.load(toml_path)
+        return parsed_toml
+    except TypeError:
+        return None
+
+
 def is_json(value: str) -> bool:
     """
     Checks if string is a valid json.
@@ -77,31 +115,6 @@ def boldify(message: str) -> str:
     Bolds a string for discord
     """
     return "**" + message + "**"
-
-
-def load_cards(json_path: str = "data/cards.json"):
-    """
-    Loads cards from cards.json into memory for quick retrieval.
-    """
-    if not os.path.exists(json_path):
-        print(
-            "Could not load cards.json, make sure to download it before attempting to retrieve data from it."
-        )
-        print(
-            "The file can be automatically downloaded with the command: python curiosa.py download"
-        )
-        raise Exception(f"Failed to load cards.json from path: {json_path}")
-
-    with open(json_path, "r", encoding="utf-8") as json_file:
-        try:
-            data = json.load(json_file)
-        except json.JSONDecodeError:
-            print(
-                f"Failed to load {json_path}, the file at path is an invalid JSON file."
-            )
-            return None
-
-    return data
 
 
 def message_truncate(message: str, preserve: int) -> str:

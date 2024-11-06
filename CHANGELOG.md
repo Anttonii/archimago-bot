@@ -2,7 +2,17 @@
 
 Notable changes and additions will be logged into this file.
 
-## \[1.0.6\] - ?
+## \[1.0.7\] - ?
+
+### Added
+
+- New commands!
+  - `rulebook` returns the link to the current iteration of the rulebook.
+  - `term` return information related to the requested term.
+
+### Changed
+
+## \[1.0.6\] - 2024-5-11
 
 ### Added
 
