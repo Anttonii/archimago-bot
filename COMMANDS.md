@@ -1,6 +1,6 @@
 # Commands
 
-**NOTE:** All of these commands are only for the discord bot. For the CLI run: `python curiosa.py --help`.
+**NOTE:** All of these commands are only for the discord bot. For the CLI run: `python main.py --help`.
 
 In all examples output refers to a message sent by the bot after the example input command has been given.
 
@@ -200,6 +200,48 @@ FAQ entries found for card: midland_army
 
 Q: Are Foot Soldiers Ordinary earth minions?
 A: Yes!
+```
+
+### rulebook or rb
+
+Returns the official curiosa.io rulebook.
+
+Usage:
+
+```
+!rulebook
+!rb
+```
+
+Output:
+
+```
+https://drive.google.com/file/d/1sgQo0xf0N2teIR0zlyl91g9j6LVncZnr/view
+```
+
+### term
+
+Returns information about a given game term/keyword.
+
+Usage:
+
+```
+!term stealth
+```
+
+Output:
+
+```
+Minions with Stealth cannot be targeted by spells
+or abilities from your opponents, they cannot be
+attacked, intercepted, or defended against, and
+projectiles cannot hit them.
+
+Stealth is tracked with a stealth token.
+
+Minions lose Stealth after they activate a special
+ability, deal damage, or attack. When this happens,
+remove the Stealth token.
 ```
 
 ### help
