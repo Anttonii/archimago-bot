@@ -5,6 +5,10 @@ import src.curiosa as curiosa
 
 
 class DeckCommand(BaseCommand):
+    """
+    Gets cards belonging to a deck from a curiosa.io URL or ID.
+    """
+
     def __init__(self, command: list[str], browser):
         self.browser = browser
 
@@ -12,7 +16,10 @@ class DeckCommand(BaseCommand):
 
     def get_content(self, msg, parameters) -> str:
         """
-        Gets cards belonging to a deck from a curiosa.io URL or ID.
+        Usage:
+
+        !deck <id> returns the deck of cards from given curiosa.io deck ID.
+        !deck <url> returns the deck of cards from given curiosa.io deck URL.
         """
         ctx = msg.channel
 

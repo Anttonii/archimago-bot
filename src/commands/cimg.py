@@ -6,6 +6,10 @@ import src.curiosa as curiosa
 
 
 class CimgCommand(BaseCommand):
+    """
+    Gets card image in URL form.
+    """
+
     def __init__(self, command: list[str], pt: Trie, cards: dict):
         self.pt = pt
         self.cards = cards
@@ -14,7 +18,9 @@ class CimgCommand(BaseCommand):
 
     def get_content(self, msg, parameters) -> str:
         """
-        Gets card image in URL form
+        Usage:
+
+        !cimg <card_name> returns the URL for the image of the given card name.
         """
         image_url = curiosa.generate_image_url(
             " ".join(parameters), self.pt, self.cards

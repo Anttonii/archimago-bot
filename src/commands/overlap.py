@@ -5,6 +5,10 @@ import src.curiosa as curiosa
 
 
 class OverlapCommand(BaseCommand):
+    """
+    Get overlapping cards between decks having provided at least 2 deck IDs.
+    """
+
     def __init__(self, command: list[str], browser):
         self.browser = browser
 
@@ -12,7 +16,9 @@ class OverlapCommand(BaseCommand):
 
     def get_content(self, msg, parameters) -> str:
         """
-        Get overlapping cards between decks having provided at least 2 deck IDs.
+        Usage:
+
+        !overlap <id#1> <id#2> returns the overlapping cards between two deck IDs.
         """
         ctx = msg.channel
 

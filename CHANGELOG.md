@@ -2,7 +2,16 @@
 
 Notable changes and additions will be logged into this file.
 
-## \[1.0.6\] - ?
+## \[1.0.7\] - 2024-6-11
+
+### Added
+
+- New commands!
+  - `rulebook` returns the link to the current iteration of the rulebook.
+  - `term` returns information related to the requested term.
+  - `help` returns information about the bot and the implemented commands.
+
+## \[1.0.6\] - 2024-5-11
 
 ### Added
 

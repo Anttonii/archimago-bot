@@ -16,6 +16,9 @@ from src.commands import (
     DeckCommand,
     FaqCommand,
     OverlapCommand,
+    TermCommand,
+    RulebookCommand,
+    HelpCommand,
 )
 
 from . import util
@@ -246,6 +249,7 @@ class DiscordClient(discord.Client):
         self._browser = browser
         self.cards = util.load_cards()
         self.prefixTree = Trie(util.get_all_card_names(self.cards))
+        self.terms = util.load_terms()
 
         self.commands = list(
             [
@@ -254,8 +258,12 @@ class DiscordClient(discord.Client):
                 CimgCommand(["cimg"], self.prefixTree, self.cards),
                 DeckCommand(["deck"], self._browser),
                 OverlapCommand(["overlap"], self._browser),
+                TermCommand(["term"], self.terms),
+                RulebookCommand(["rulebook", "rb"]),
             ]
         )
+
+        self.commands.append(HelpCommand(["help"], self.commands))
 
         async def runner():
             async with self:
