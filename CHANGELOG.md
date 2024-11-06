@@ -9,14 +9,18 @@ Notable changes and additions will be logged into this file.
 - CI/CD integration
 - Fuzzy matching for card names
 - Discord bots status changes randomly every 15 minutes.
+- When editing a message containing a command, update pre-existing reply.
 
 ### Changed
 
 - `faq` and `cimg` commands now also offer card name suggestions
+- Now replies to command messages instead of just sending messages
+- Commands are now split into individual files, implementing new commands require having `BaseCommand` as superclass.
 
 ### Fixes
 
 - `faq` command no longer sends the request if the card is not found internally.
+- Gives user feedback over invalid command
 
 ## \[1.0.5\] - 2024-2-11
 

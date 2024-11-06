@@ -4,6 +4,21 @@
 
 The wizard of the Finnish Sorcery TCG [discord server](https://discord.gg/en3tmeSGGv). A discord bot that web-scrapes [curiosa.io](https://curiosa.io/) for deck recipes and the official API for card information! Full command documentation is under the `COMMANDS.md` file.
 
+<p align="center">
+<a href="https://discord.com/api/oauth2/authorize?client_id=1297139330279669820&permissions=2048&scope=bot%20applications.commands">Invite Archimago to your server by clicking here!</a>
+</p>
+
+## Features
+
+Some notable features of Archimago:
+
+- Scraping Curiosa.io for deck recipes and card FAQ entries.
+- Retrieving card information and card images.
+- Fuzzy card name matching to help users find cards more accurately.
+- CI/CD integration for easy development.
+
+Future features and features in progress are documented in the `TODO.md` file.
+
 ## Installation
 
 As usual with python programs fetching required rependencies can be done with `pip` by running
