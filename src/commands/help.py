@@ -22,13 +22,14 @@ class HelpCommand(BaseCommand):
         """
         Usage:
 
-        !help to get this message.
-        !help <command> for information about a command.
+        !help returns list of commands and their explanations.
+        !help <command> returns usage information about a command.
         """
         if len(parameters) > 0:
             for command in self.commands:
                 if command.is_command_suffix(parameters[0]):
                     doc_string = inspect.getdoc(command.get_content)
+
                     if doc_string is None:
                         return f"No help provided for command: {parameters[0]}."
                     else:

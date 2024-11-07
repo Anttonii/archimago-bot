@@ -1,5 +1,4 @@
 import json
-import os
 
 import requests
 from bs4 import BeautifulSoup
@@ -17,16 +16,13 @@ curiosa_deck_base_url = "https://curiosa.io/decks/"
 # The curiosa.io base URL where card requests are made to.
 curiosa_card_base_url = "https://curiosa.io/cards/"
 
-# The curiosa.io API backend for getting card data.
-curiosa_api_url = "https://api.sorcerytcg.com/api/cards"
-
 # The maximum time to wait for a timeout in seconds
 maximum_wait_timeout = 3
 
 
-def prettify_deck(deck):
+def prettify_deck(deck) -> str:
     """
-    Prints a more readable version of a given deck dictionary.
+    Returns a more readable version of a given deck dictionary.
     """
     output = ""
     for k, v in deck.items():
@@ -43,12 +39,13 @@ def prettify_deck(deck):
         suffix = "" if k == "Avatar" else "s"
         curr = f"{k}{suffix} ({sum})\n" + curr
         output += curr
+
     return output + "\n"
 
 
-def prettify_card(card):
+def prettify_card(card) -> str:
     """
-    Prints a more readable version of a given card dictionary entry.
+    Returns a more readable version of a given card dictionary entry.
     """
     output = "Name: " + card["name"] + "\n"
 
@@ -79,13 +76,14 @@ def prettify_card(card):
     return output
 
 
-def get_card_counts(deck):
+def get_card_counts(deck) -> str:
     """
-    Prints a list of counts of different cards by their type
+    Returns a string that represents a list of counts of different cards by their type.
     """
     output = ""
     total_sum = 0
     atlas_sum = 0
+
     for k, v in deck.items():
         if k == "Avatar":
             continue
@@ -96,6 +94,7 @@ def get_card_counts(deck):
             if k == "Site":
                 atlas_sum += int(e[1])
         total_sum += sum
+
     output += f"Total: {total_sum} cards({total_sum - atlas_sum} Spellbook, {atlas_sum} Atlas)\n\n"
     return output
 
@@ -324,7 +323,7 @@ def generate_image_url(card_name: str, pt: Trie, cards: dict) -> str:
     if card is None:
         return get_content_suggestion(card_name, pt, "Could not find card by card name")
 
-    card_name = util.get_card_name_url_form(card["name"])
+    card_name = util.get_url_form(card["name"])
 
     set = util.parse_sets(card)
 
@@ -332,33 +331,6 @@ def generate_image_url(card_name: str, pt: Trie, cards: dict) -> str:
     set_name = set[0:3].lower()
 
     return base_url + set_name + "/" + card_name + extension
-
-
-def download_cards_json(output: str = "data"):
-    """
-    Makes a request to Curiosa.io API to download the official card data.
-    """
-    print(f"Retrieving sorcery card json file from {curiosa_api_url}..")
-
-    req = requests.get(curiosa_api_url)
-    if req.status_code != 200:
-        print(f"Failed to get cards API with status code: {req.status_code}")
-        return
-
-    output_path = os.path.join(output, "cards.json")
-    content = req.content.decode("utf-8")
-
-    if not util.is_json(content):
-        print("The returned element is not a valid json, can not save to file.")
-        return
-
-    if os.path.exists(output_path):
-        print("Cards.json already present, overwriting..")
-
-    with open(output_path, "w+") as json_file:
-        json_file.write(content)
-
-    print(f"Card data successfully downloaded and saved into: {output_path}!")
 
 
 def get_content_suggestion(content: str, pt: Trie, explanation: str) -> str:

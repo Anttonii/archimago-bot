@@ -9,3 +9,21 @@ prune_replies_time = 30
 # The character or string to use as a prefix for commands.
 # Default value: "!"
 command_prefix = "!"
+# Card image regex pattern
+# Default value: "\[!(.*?)\]"
+cimg_regex = '''\[!(.*?)\]'''
+# Card regex pattern
+# Default value: "[[!(.*?)]]"
+card_regex = '''\[\[!(.*?)\]\]'''
+# List of possible status messages
+# Default value = []
+status_messages = [
+  "Brewing magic..",
+  "Casting Blink..",
+  "Sitting by the bonfire..",
+  "Sitting on the Immortal Throne..",
+  "Erupting Vesuvius..",
+  "Pathfinding..",
+  "Navigating the Stormy Seas..",
+  "Attending the Royal Wedding..",
+]

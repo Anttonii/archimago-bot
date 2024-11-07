@@ -8,6 +8,15 @@ Notable changes and additions will be logged into this file.
 
 - Configurability options.
 
+### Changed
+
+- Code cleanup and small improvements.
+- If cards.json is not present when starting discord client, attempt to download it.
+
+### Fixes
+
+- Regex commands yet again properly invoke commands.
+
 ## \[1.0.7\] - 2024-6-11
 
 ### Added

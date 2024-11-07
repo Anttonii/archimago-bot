@@ -28,18 +28,6 @@ load_dotenv()
 DISCORD_BOT_TOKEN = os.getenv("discord-bot-token")
 DISCORD_BOT_MODE = os.getenv("discord-bot-mode")
 
-# Status messages chosen by random displayed under the bots name
-STATUS_MESSAGES = [
-    "Brewing magic..",
-    "Casting Blink..",
-    "Sitting by the bonfire..",
-    "Sitting on the Immortal Throne..",
-    "Erupting Vesuvius..",
-    "Pathfinding..",
-    "Navigating the Stormy Seas..",
-    "Attending the Royal Wedding..",
-]
-
 
 class DiscordClient(discord.Client):
     def __init__(self, *, intents=None, **options):
@@ -57,19 +45,6 @@ class DiscordClient(discord.Client):
         # Store all replies sent by the bot and the time they are sent
         self.replies: list[tuple[int, int, float]] = list()
 
-    async def handle_reply(self, msg):
-        """
-        Handles sending reply
-        """
-        content = await self.handle_command(msg)
-        ic_content = self.handle_regex(msg)
-
-        if content is not None:
-            await self.send_reply(msg, content)
-
-        if ic_content is not None:
-            await self.send_reply(msg, ic_content)
-
     async def handle_command(self, msg) -> str | None:
         """
         Matches commands that start with command prefix to their respective functionality.
@@ -84,15 +59,10 @@ class DiscordClient(discord.Client):
         command = split_command[0][1:]
         parameters = split_command[1:]
 
-        for comm in self.commands:
-            if comm.is_command_suffix(command):
-                return comm.get_content(msg, parameters)
-
         if command == "stop" and DISCORD_BOT_MODE == "debug":
             await self.close_client()
 
-        # If command was not found in registered commands, return the base case.
-        return self.handle_incorrect_command(util.code_blockify(command))
+        return self.invoke_command(command, msg, parameters)
 
     def handle_regex(self, msg) -> str | None:
         """
@@ -101,27 +71,50 @@ class DiscordClient(discord.Client):
         content = msg.content
 
         # Regex patterns for commands that are within messages.
-        card_image_pattern = r"\[!(.*?)\]"
+        card_image_pattern = self.config["cimg_regex"]
         ci_pattern_match = re.search(card_image_pattern, content)
 
-        card_text_pattern = r"\[\[!(.*?)\]\]"
+        card_text_pattern = self.config["card_regex"]
         ct_pattern_match = re.search(card_text_pattern, content)
 
         if ct_pattern_match:
-            card_name = ct_pattern_match.group(1).split(" ")
-            return self.get_card(card_name)
+            # Check if there are more than once matches.
+            all_cards = util.get_all_card_names(self.cards)
+
+            all_ref_cards = re.findall(card_image_pattern, content)
+            all_ref_cards = list(map(util.get_url_form, all_ref_cards))
+            all_ref_cards = list(filter(lambda x: x in all_cards, all_ref_cards))
+
+            if len(all_ref_cards) == 1:
+                card_name = ct_pattern_match.group(1).split(" ")
+                return self.invoke_command("card", msg, card_name)
+
+            return self.get_referenced_cards(all_ref_cards)
 
         if ci_pattern_match:
             card_name = ci_pattern_match.group(1).split(" ")
-            return self.get_card_image(card_name)
+            return self.invoke_command("cimg", msg, card_name)
 
         return None
+
+    def get_referenced_cards(self, cards: list[str]):
+        """
+        Returns a string that contains all referenced cards and links to their
+        curiosa.io pages.
+        """
+        base_url = "https://curiosa.io/cards/"
+        output = "Referenced cards:\n"
+
+        for i, card in enumerate(cards):
+            output += f"[{i + 1}] → " + base_url + card + "\n"
+
+        return output
 
     def handle_incorrect_command(self, command) -> str:
         """
         Handle case where user send a message that is invalid.
         """
-        return f"Invalid command: {command}"
+        return f"Invalid command: {util.code_blockify(command)}"
 
     async def handle_concurrent(self):
         """
@@ -146,10 +139,13 @@ class DiscordClient(discord.Client):
         """
         Changes presence to a random new one.
         """
-        random_status = random.choice(STATUS_MESSAGES)
-
-        while random_status == self.current_status:
-            random_status = random.choice(STATUS_MESSAGES)
+        random_status = random.choice(
+            list(
+                filter(
+                    lambda x: x != self.current_status, self.config["status_messages"]
+                )
+            )
+        )
 
         print(f"Changing presence to: {random_status}")
         self.current_status = random_status
@@ -164,28 +160,27 @@ class DiscordClient(discord.Client):
 
         When this is called, filter out messages that were replied to more than 30 seconds ago.
         """
-        self.replies = list(filter(lambda x: time.time() - x[2] < 30, self.replies))
+        self.replies = list(
+            filter(
+                lambda x: time.time() - x[2] < self.config["prune_replies_time"],
+                self.replies,
+            )
+        )
 
-    async def handle_edit(self, message, after):
+    async def handle_edit(self, index, message, after):
         """
         Handles the edit event by editing the reply message if the reply message is still present.
         """
-        message_ids = list(map(lambda x: x[0], self.replies))
-        reply_ids = list(map(lambda x: x[1], self.replies))
+        reply = self.replies[index]
+        reply_id = reply[1]
 
-        try:
-            index = message_ids.index(message.id)
-            reply_id = reply_ids[index]
+        content = self.handle_regex(after)
 
-            if util.contains_regex(after.content, [r"\[!(.*?)\]", r"\[\[!(.*?)\]\]"]):
-                content = self.handle_regex(after)
-            else:
-                content = await self.handle_command(after)
+        if content is None:
+            content = await self.handle_command(after)
 
-            reply_msg = await message.channel.fetch_message(reply_id)
-            await reply_msg.edit(content=content)
-        except ValueError:
-            return
+        reply_msg = await message.channel.fetch_message(reply_id)
+        await reply_msg.edit(content=content)
 
     async def on_ready(self):
         """
@@ -202,7 +197,13 @@ class DiscordClient(discord.Client):
         if len(msg.content) == 0 or msg.author == self.user:
             return
 
-        await self.handle_reply(msg)
+        content = await self.handle_command(msg)
+        if content is not None:
+            await self.send_reply(msg, content)
+
+        ic_content = self.handle_regex(msg)
+        if ic_content is not None:
+            await self.send_reply(msg, ic_content)
 
     async def on_message_edit(self, before, after):
         """
@@ -210,15 +211,32 @@ class DiscordClient(discord.Client):
 
         If such message contains a command, updates the reply or creates a new reply if one was not present.
         """
-        if before.author == self.user:
+        # Sanity checks, don't process messages sent by the bot.
+        if len(after.content) == 0 or before.author == self.user:
             return
 
         messages = list(map(lambda x: x[0], self.replies))
         msg_id = before.id
 
-        # If we have already replied to the edited message, edit the reply
-        if msg_id in messages:
-            await self.handle_edit(before, after)
+        try:
+            # If we have already replied to the edited message, edit the reply
+            index = messages.index(msg_id)
+
+            await self.handle_edit(index, before, after)
+        except ValueError:
+            # No reply, just return.
+            return
+
+    def invoke_command(self, command: str, msg, parameters) -> str:
+        """
+        Invokes a command by command name and given parameters.
+        """
+        for comm in self.commands:
+            if comm.is_command_suffix(command):
+                return comm.get_content(msg, parameters)
+
+        # If command was not found in registered commands, return the base case.
+        return self.handle_incorrect_command(command)
 
     async def send_reply(self, message, content):
         """
@@ -238,9 +256,15 @@ class DiscordClient(discord.Client):
             return
 
         self._browser = browser
-        self.cards = util.load_cards()
-        self.terms = util.load_toml("data/terms.toml")
-        self.config = util.load_toml("data/config.toml")
+
+        try:
+            self.cards = util.load_cards()
+            self.terms = util.load_toml("data/terms.toml")
+            self.config = util.load_toml("data/config.toml")
+        except Exception as e:
+            print(f"Failed to initialize discord client due to exception: {e}")
+            return
+
         self.prefixTree = Trie(util.get_all_card_names(self.cards))
 
         self.commands = list(

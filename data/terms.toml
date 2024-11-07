@@ -4,9 +4,7 @@
 #
 # [term.term]
 # alternatives = [] # If the term has alternative terms that hold the same meaning.
-# text = """
-# The text explanation of the term
-# """
+# text = """ """ # Text explanation for the term, multiline string.
 
 [term]
 
@@ -29,12 +27,28 @@ This minion cannot be targeted by attacks, unless
 the attacking unit has the Airborne ability.
 """
 
+[term.banish]
+text = """
+Remove from the game.
+"""
+
 [term.burrowing]
 text = """
 This unit can be safely summoned to, exist in, and
 operate normally underground. When taking a
 step, it can move from the surface of a land site to
 the underground level there, or vice versa.
+"""
+
+[term.carry]
+alternatives = ["carried", "carried_units", "carry_unit"]
+text = """
+Some units can carry other units. A unit with
+this ability, picks them up or drops them in the
+same manner and time as it would artifacts.
+Units that have Airborne, Burrowing,
+Submerge, or Voidwalk confer those abilities to
+units they are carrying while they are carried.
 """
 
 [term.charge]
@@ -48,6 +62,12 @@ summoned.
 text = """
 When this unit dies, do what is stated before placing
 it in the cemetery.
+"""
+
+[term.death_blow]
+text = """
+When an Avatar is at death’s door, any damage
+dealt to them is a death blow, signaling their defeat.
 """
 
 [term.deaths_door]
@@ -173,6 +193,18 @@ unit may also intercept Airborne units flying over
 them.
 """
 
+[term.rubble]
+text = """
+A site that has been destroyed is placed in its
+owner’s cemetery as normal, but rather than
+reverting back to the void, the site is instead
+replaced with rubble. Rubble is a neutral land site
+that no player controls, and provides no mana or
+threshold.
+Note: Use Rubble tokens or a face down site to
+represent rubble on a square.
+"""
+
 [term.silence]
 alternatives = ["silenced"]
 text = """
@@ -208,6 +240,32 @@ it can move from the surface of a water site to the
 underwater level there, or vice versa.
 """
 
+[term.summon]
+text = """
+When a card is summoned, put it directly into play.
+"""
+
+[term.tap]
+alternatives = ["tapping"]
+text = """
+Cards in the realm can be tapped as a cost to
+activate various abilities. A player may also need
+to tap a card as a cost related to other spells or
+abilities on other cards.
+To tap a card, turn a it 90° to the right, from an
+upright position. Only untapped cards and tokens
+in play can be tapped. All of your cards in play
+automatically (and necessarily) untap at the start
+of your turn.
+"""
+
+[term.void]
+text = """
+A square without a site is a part of the void region.
+Avatars can never enter void locations. Minions
+there are banished unless they have Voidwalk.
+"""
+
 [term.voidwalk]
 text = """
 This unit can be summoned to any void location
@@ -222,4 +280,13 @@ there).
 text = """
 You may include one copy of a card that has the
 term “Unique” in its type line.
+"""
+
+[text.strike_first]
+text = """
+Units that strike first resolve their strikes before
+their target can resolve theirs. If multiple units in
+the same fight are able to strike first, they all strike
+at the same time. Then any surviving units without
+that ability make their strikes.
 """

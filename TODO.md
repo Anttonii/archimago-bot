@@ -8,7 +8,7 @@
 - \[x\] Add term explanations from the official rulebook
 - \[x\] Add command for retrieving the rulebook
 - \[x\] Add back the help command
-- \[z\] Add configurability options
+- \[x\] Add configurability options
 
 ## TODO
 
@@ -20,3 +20,5 @@
 ## In consideration
 
 - \[ \] Pool requests made to the bot to stop the bot from getting blocked
+- \[ \] Maintainer commands such as reloading configuration file without changing code.
+  - Only available to user that have their IDs whitelisted within the internal configuration.
