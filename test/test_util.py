@@ -42,9 +42,9 @@ def test_get_card_name_url_form():
     test_card_2 = "Merlin's Staff"
     test_card_3 = "Fire Harpoons!"
 
-    assert util.get_card_name_url_form(test_card_1) == "wills_o_the_wisp"
-    assert util.get_card_name_url_form(test_card_2) == "merlins_staff"
-    assert util.get_card_name_url_form(test_card_3) == "fire_harpoons"
+    assert util.get_url_form(test_card_1) == "wills_o_the_wisp"
+    assert util.get_url_form(test_card_2) == "merlins_staff"
+    assert util.get_url_form(test_card_3) == "fire_harpoons"
 
 
 def test_contains_regex():

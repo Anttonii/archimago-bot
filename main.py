@@ -77,7 +77,6 @@ def faq(card_name: list[str]):
     """
     cn, pt, cards = command_preq(card_name)
     print(curiosa.get_faq_entries(cn, pt, cards))
-    return
 
 
 @app.command()
@@ -85,7 +84,7 @@ def download(output: str = "data"):
     """
     Downloads card data from the official curiosa.io API and saves it into a file.
     """
-    curiosa.download_cards_json(output)
+    util.download_cards_json(output)
 
 
 def command_preq(card_name: list[str]) -> tuple[str, Trie, dict]:
@@ -95,7 +94,7 @@ def command_preq(card_name: list[str]) -> tuple[str, Trie, dict]:
     cards = util.load_cards()
 
     return (
-        util.get_card_name_url_form(" ".join(card_name)),
+        util.get_url_form(" ".join(card_name)),
         Trie(util.get_all_card_names(cards)),
         cards,
     )

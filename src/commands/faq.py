@@ -23,7 +23,7 @@ class FaqCommand(BaseCommand):
         !faq <card_name> returns the FAQ entries found for the given card.
         !faqs <card_name> same as above.
         """
-        card_name = util.get_card_name_url_form(" ".join(parameters))
+        card_name = util.get_url_form(" ".join(parameters))
 
         faq_entries = curiosa.get_faq_entries(card_name, self.pt, self.cards)
 

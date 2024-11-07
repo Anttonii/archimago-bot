@@ -29,6 +29,9 @@ class DeckCommand(BaseCommand):
         if len(parameters) > 1:
             return "Incorrect usage, use only 1 deck parameter at a time."
 
+        if len(parameters) < 1:
+            return "Requires a curiosa.io deck ID or URL to function."
+
         split_request = parameters[0].split("/")
 
         if len(split_request) > 1:

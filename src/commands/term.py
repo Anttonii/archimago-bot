@@ -22,8 +22,7 @@ class TermCommand(BaseCommand):
 
         !term <term> returns an explanation for the given term.
         """
-        # We can use the same logic here for parsing the term
-        term = util.get_card_name_url_form(" ".join(parameters))
+        term = util.get_url_form(" ".join(parameters))
 
         is_found = term in self.terms["term"]
         is_alternative = False

@@ -1,18 +1,18 @@
-from typing import Any
-
 import json
 import os
 import platform
 import re
+from typing import Any
 
 import chromedriver_autoinstaller
+import requests
+import toml
 from discord import DMChannel, GroupChannel
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options as ChromeOptions
 from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.firefox.options import Options as FirefoxOptions
 from selenium.webdriver.firefox.service import Service as FirefoxService
-import toml
 
 
 def build_browser():
@@ -54,41 +54,64 @@ def build_browser():
         return None
 
 
+def download_cards_json(
+    output: str = "data", api_url="https://api.sorcerytcg.com/api/cards"
+) -> bool:
+    """
+    Makes a request to Curiosa.io API to download the official card data.
+
+    Returns whether or not the download was successful.
+    """
+    print(f"Retrieving sorcery card json file from {api_url}..")
+
+    req = requests.get(api_url)
+    if req.status_code != 200:
+        print(f"Failed to get cards API with status code: {req.status_code}")
+        return False
+
+    output_path = os.path.join(output, "cards.json")
+    content = req.content.decode("utf-8")
+
+    if not is_json(content):
+        print("The requested path did not provide valid json, can not save to file.")
+        return False
+
+    if os.path.exists(output_path):
+        print("Cards.json already present, overwriting..")
+
+    with open(output_path, "w+") as json_file:
+        json_file.write(content)
+
+    print(f"Card data successfully downloaded and saved into: {output_path}!")
+    return True
+
+
 def load_cards(json_path: str = "data/cards.json"):
     """
     Loads cards from cards.json into memory for quick retrieval.
     """
     if not os.path.exists(json_path):
-        raise Exception(
-            f"Failed to load cards.json from path: {json_path}, file not found."
-        )
+        print(f"{json_path} not found, attempting to download the json file.")
+
+        if not download_cards_json():
+            raise Exception("Attempt to download .json file failed.")
 
     with open(json_path, "r", encoding="utf-8") as json_file:
-        try:
-            data = json.load(json_file)
-        except json.JSONDecodeError:
-            print(
-                f"Failed to load {json_path}, the file at path is an invalid JSON file."
-            )
-            return None
+        data = json.load(json_file)
 
     return data
 
 
-def load_terms(toml_path: str = "data/terms.toml"):
+def load_toml(toml_path: str):
     """
-    Parse keywords and their explanations from keywords TOML.
+    Parse toml file into a dictionary.
     """
     if not os.path.exists(toml_path):
         raise Exception(
-            f"Failed to load keywords.toml from path: {toml_path}, file not found."
+            f"Failed to load toml file from path: {toml_path}, file not found."
         )
 
-    try:
-        parsed_toml = toml.load(toml_path)
-        return parsed_toml
-    except TypeError:
-        return None
+    return toml.load(toml_path)
 
 
 def is_json(value: str) -> bool:
@@ -130,21 +153,21 @@ def message_truncate(message: str, preserve: int) -> str:
     return message
 
 
-def get_card_name_url_form(card_name: str) -> str:
+def get_url_form(text: str) -> str:
     """
-    Converts card name to lower case, replaces spaces with underscores and removes special characters.
+    Converts text to lower case, replaces spaces with underscores and removes special characters.
     """
     special_chars = ["'", "!"]
 
-    card_name = card_name.lower()
-    card_name = card_name.replace(" ", "_")
-    card_name = card_name.replace("-", "_")  # Dream-Quest, Wills-o-the-Wisp
+    text = text.lower()
+    text = text.replace(" ", "_")
+    text = text.replace("-", "_")  # Dream-Quest, Wills-o-the-Wisp
 
     # Remove special characters
     for c in special_chars:
-        card_name = card_name.replace(c, "")
+        text = text.replace(c, "")
 
-    return card_name
+    return text
 
 
 def parse_sets(card):
@@ -187,7 +210,7 @@ def get_card_entry(card_name: str, cards: dict | None) -> Any | None:
     assert cards is not None
 
     for card in cards:
-        if get_card_name_url_form(card["name"]) == get_card_name_url_form(card_name):
+        if get_url_form(card["name"]) == get_url_form(card_name):
             return card
 
     return None
@@ -205,13 +228,13 @@ def check_channel(ctx) -> bool:
     return True
 
 
-def get_all_card_names(cards: dict):
+def get_all_card_names(cards: dict | None = None):
     """
     Extracts all card names from a cards dictionary file.
     """
     assert cards is not None
 
-    return [get_card_name_url_form(card["name"]) for card in cards]
+    return [get_url_form(card["name"]) for card in cards]
 
 
 def with_selenium(func):

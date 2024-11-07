@@ -1,0 +1,29 @@
+# Configuration file for configurable features and parameters of Archimago.
+
+# The time in seconds that it takes for the bot to automatically change it's presence message.
+# Default value: 900
+status_update_time = 900
+# The time in seconds that it takes for the bot to automatically prune it's list of replies.
+# Default value: 30
+prune_replies_time = 30
+# The character or string to use as a prefix for commands.
+# Default value: "!"
+command_prefix = "!"
+# Card image regex pattern
+# Default value: "\[!(.*?)\]"
+cimg_regex = '''\[!(.*?)\]'''
+# Card regex pattern
+# Default value: "[[!(.*?)]]"
+card_regex = '''\[\[!(.*?)\]\]'''
+# List of possible status messages
+# Default value = []
+status_messages = [
+  "Brewing magic..",
+  "Casting Blink..",
+  "Sitting by the bonfire..",
+  "Sitting on the Immortal Throne..",
+  "Erupting Vesuvius..",
+  "Pathfinding..",
+  "Navigating the Stormy Seas..",
+  "Attending the Royal Wedding..",
+]
