@@ -2,11 +2,18 @@
 
 Notable changes and additions will be logged into this file.
 
-## \[1.0.8\] - ?
+## \[1.0.9\] - ?
+
+### Fixes
+
+- Cards with scandinavian letters (ö, ä) properly handled.
+
+## \[1.0.8\] - 2024-7-11
 
 ### Added
 
 - Configurability options.
+- Referencing multiple cards with regex returns a list of referenced cards.
 
 ### Changed
 

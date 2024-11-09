@@ -157,15 +157,19 @@ def get_url_form(text: str) -> str:
     """
     Converts text to lower case, replaces spaces with underscores and removes special characters.
     """
-    special_chars = ["'", "!"]
+    # Replace the first letter with the second one in every array
+    replacements = [
+        ["'", ""],
+        ["!", ""],
+        [" ", "_"],
+        ["-", "_"],
+        ["ä", "a"],
+        ["ö", "o"],
+    ]
 
     text = text.lower()
-    text = text.replace(" ", "_")
-    text = text.replace("-", "_")  # Dream-Quest, Wills-o-the-Wisp
-
-    # Remove special characters
-    for c in special_chars:
-        text = text.replace(c, "")
+    for replacement in replacements:
+        text.replace(replacement[0], replacement[1])
 
     return text
 
