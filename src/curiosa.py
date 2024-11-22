@@ -19,7 +19,6 @@ curiosa_card_base_url = "https://curiosa.io/cards/"
 # The maximum time to wait for a timeout in seconds
 maximum_wait_timeout = 3
 
-
 def prettify_deck(deck) -> str:
     """
     Returns a more readable version of a given deck dictionary.

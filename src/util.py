@@ -42,6 +42,7 @@ def build_browser():
             c_options.add_argument("--no-sandbox")
             c_options.add_argument("--disable-dev-shm-usage")
             c_options.add_argument("--headless")
+            c_options.add_argument("disable-infobars")
             _browser = webdriver.Chrome(
                 options=c_options,
                 service=ChromeService("/snap/bin/chromium.chromedriver"),
