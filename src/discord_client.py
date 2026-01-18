@@ -89,9 +89,7 @@ class DiscordClient(discord.Client):
 
             all_ref_cards = re.findall(card_image_pattern, content)
             all_ref_cards = list(map(get_url_form, all_ref_cards))
-            all_ref_cards = list(
-                filter(lambda x: x in all_cards, all_ref_cards)
-            )
+            all_ref_cards = list(filter(lambda x: x in all_cards, all_ref_cards))
 
             if len(all_ref_cards) == 1:
                 card_name = ct_pattern_match.group(1).split(" ")
@@ -171,8 +169,7 @@ class DiscordClient(discord.Client):
         """
         self.replies = list(
             filter(
-                lambda x: time.time() - x[2]
-                < self.config["prune_replies_time"],
+                lambda x: time.time() - x[2] < self.config["prune_replies_time"],
                 self.replies,
             )
         )

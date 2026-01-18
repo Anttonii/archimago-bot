@@ -29,9 +29,7 @@ def download_cards_json(
     content = req.content.decode("utf-8")
 
     if not is_json(content):
-        print(
-            "The requested path did not provide valid json, can not save to file."
-        )
+        print("The requested path did not provide valid json, can not save to file.")
         return False
 
     if output_path.exists():

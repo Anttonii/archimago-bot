@@ -46,9 +46,7 @@ class HelpCommand(BaseCommand):
         """
         output = "Archimago provides the following commands:\n\n"
         for command in self.commands:
-            output += (
-                "- " + boldify(", ".join(command.get_command_suffix())) + ": "
-            )
+            output += "- " + boldify(", ".join(command.get_command_suffix())) + ": "
 
             doc_string = inspect.getdoc(command)
             if doc_string is None:
