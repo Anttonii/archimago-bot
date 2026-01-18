@@ -1,7 +1,7 @@
 from src.commands.base import BaseCommand
 
 from src.trie import Trie
-import src.util as util
+from src.discord import code_blockify
 import src.curiosa as curiosa
 
 
@@ -27,6 +27,6 @@ class CimgCommand(BaseCommand):
         )
 
         if not image_url.startswith("https://"):
-            image_url = util.code_blockify(image_url)
+            image_url = code_blockify(image_url)
 
         return image_url

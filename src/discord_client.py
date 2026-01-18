@@ -24,10 +24,10 @@ from src.commands.term import TermCommand
 from src.util import (
     get_all_card_names,
     get_url_form,
-    code_blockify,
     load_cards,
     load_toml,
 )
+from src.discord import code_blockify
 from src.trie import Trie
 
 load_dotenv()

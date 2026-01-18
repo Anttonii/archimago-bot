@@ -1,6 +1,6 @@
 from src.commands.base import BaseCommand
 
-import src.util as util
+from src.discord import check_channel, code_blockify
 import src.curiosa as curiosa
 
 
@@ -23,7 +23,7 @@ class DeckCommand(BaseCommand):
         """
         ctx = msg.channel
 
-        if not util.check_channel(ctx):
+        if not check_channel(ctx):
             return "Deck command can currently only be used on servers, not in private messages."
 
         if len(parameters) > 1:
@@ -43,4 +43,4 @@ class DeckCommand(BaseCommand):
                 parameters[0], self.browser, False
             )
 
-        return util.code_blockify(received_output)
+        return code_blockify(received_output)

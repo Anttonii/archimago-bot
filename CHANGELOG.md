@@ -2,7 +2,7 @@
 
 Notable changes and additions will be logged into this file.
 
-## \[2.0.0\] - ?
+## \[2.0.0\] - 2026-1-18
 
 ### Changed
 

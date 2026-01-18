@@ -1,6 +1,6 @@
 from src.commands.base import BaseCommand
 
-import src.util as util
+from src.discord import check_channel, code_blockify
 import src.curiosa as curiosa
 
 
@@ -22,7 +22,7 @@ class OverlapCommand(BaseCommand):
         """
         ctx = msg.channel
 
-        if not util.check_channel(ctx):
+        if not check_channel(ctx):
             return "Overlap command can currently only be used on servers, not in private messages."
 
         # Avoid blocking the whole app by providing a giant list of ids.
@@ -33,4 +33,4 @@ class OverlapCommand(BaseCommand):
             parameters, self.browser
         )
 
-        return util.code_blockify(received_output)
+        return code_blockify(received_output)

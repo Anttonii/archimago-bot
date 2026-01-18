@@ -3,6 +3,7 @@ from src.commands.base import BaseCommand
 from src.trie import Trie
 import src.util as util
 import src.curiosa as curiosa
+from src.discord import code_blockify, message_truncate
 
 
 class FaqCommand(BaseCommand):
@@ -28,6 +29,6 @@ class FaqCommand(BaseCommand):
         faq_entries = curiosa.get_faq_entries(card_name, self.pt, self.cards)
 
         # preserve 6 space for code block
-        truncated = util.message_truncate(faq_entries, 6)
+        truncated = message_truncate(faq_entries, 6)
 
-        return util.code_blockify(truncated)
+        return code_blockify(truncated)

@@ -1,63 +1,11 @@
 import json
 import os
-import platform
 import re
 import tomllib
 from pathlib import Path
-from typing import Any, Generator
+from typing import Any
 
-from contextlib import contextmanager
-import chromedriver_autoinstaller
 import requests
-from discord import DMChannel, GroupChannel
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options as ChromeOptions
-from selenium.webdriver.chrome.service import Service as ChromeService
-from selenium.webdriver.firefox.options import Options as FirefoxOptions
-from selenium.webdriver.firefox.service import Service as FirefoxService
-from selenium.webdriver.remote.webdriver import WebDriver
-
-
-def build_browser() -> WebDriver | None:
-    """
-    Builds a Selenium webdriver instance
-    """
-    print("Instantiating webdriver instance..")
-
-    # Checks if chrome driver is already in path, if not installs and adds it to path.
-    if "macOS" not in platform.platform():
-        chromedriver_autoinstaller.install()
-
-    # The webdriver chromium headless instance
-    c_options = ChromeOptions()
-    try:
-        if "Windows" in platform.platform():
-            c_options.add_argument("--headless")
-            c_options.add_argument("--no-sandbox")
-            c_options.add_argument("--disable-dev-shm-usage")
-            _browser = webdriver.Chrome(options=c_options)
-        elif "macOS" in platform.platform():
-            f_options = FirefoxOptions()
-            f_options.add_argument("-headless")
-            _browser = webdriver.Firefox(
-                options=f_options,
-                service=FirefoxService("/opt/homebrew/bin/geckodriver"),
-            )
-        else:
-            c_options.add_argument("--no-sandbox")
-            c_options.add_argument("--disable-dev-shm-usage")
-            c_options.add_argument("--headless")
-            c_options.add_argument("disable-infobars")
-            _browser = webdriver.Chrome(
-                options=c_options,
-                service=ChromeService("/snap/bin/chromium.chromedriver"),
-            )
-        return _browser
-    except ValueError:
-        print(
-            "Failed to setup Selenium, this is most likely an issue with unsupported OS."
-        )
-        return None
 
 
 def download_cards_json(
@@ -137,33 +85,6 @@ def is_json(value: str) -> bool:
     return True
 
 
-def code_blockify(message: str) -> str:
-    """
-    Turns a string into a code block for discord
-    """
-    return "```" + message + "```"
-
-
-def boldify(message: str) -> str:
-    """
-    Bolds a string for discord
-    """
-    return "**" + message + "**"
-
-
-def message_truncate(message: str, preserve: int) -> str:
-    """
-    Utility function that truncates message into dicords max character limit of 2000.
-    """
-    # Removes all lettes after 2000 and replaces last 3 with dots
-    # preserve value can be set so that we preserve more space, for example when using code_blockify.
-    if len(message) > 2000:
-        message = message[0 : 1997 - preserve]
-        message += "..."
-
-    return message
-
-
 def get_url_form(text: str) -> str:
     """
     Converts text to lower case, replaces spaces with underscores and removes special characters.
@@ -223,18 +144,6 @@ def get_card_entry(card_name: str, cards: dict = load_cards()) -> Any | None:
     return None
 
 
-def check_channel(ctx) -> bool:
-    """
-    Checks if the channel is a private channel or group channel
-
-    Used so that blocking requests are only made from servers
-    """
-    if isinstance(ctx, DMChannel) or isinstance(ctx, GroupChannel):
-        return False
-
-    return True
-
-
 def get_all_card_names(cards: dict | None = None):
     """
     Extracts all card names from a cards dictionary file.
@@ -242,23 +151,6 @@ def get_all_card_names(cards: dict | None = None):
     assert cards is not None
 
     return [get_url_form(card["name"]) for card in cards]
-
-
-@contextmanager
-def get_selenium_browser() -> Generator[WebDriver, Any, Any]:
-    """
-    A context manager that provides a Selenium webdriver instance for functions requiring it
-    and also makes sure that the webdriver gets closed properly after being used.
-    """
-    _browser = build_browser()
-
-    if _browser is None:
-        raise ValueError("Failed to instantiate Selenium webdriver instance.")
-    else:
-        try:
-            yield _browser
-        finally:
-            _browser.quit()
 
 
 def contains_regex(s: str, p: list[str]) -> bool:

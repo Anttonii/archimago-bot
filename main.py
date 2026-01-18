@@ -3,11 +3,11 @@ import typer
 import src.curiosa as curiosa
 from src.util import (
     get_all_card_names,
-    get_selenium_browser,
     download_cards_json,
     load_cards,
     get_url_form,
 )
+from src.browser import get_selenium_browser
 from src.discord_client import DiscordClient
 from src.trie import Trie
 
@@ -40,7 +40,7 @@ def url(url: str, include_maybe: bool = False):
     Returns a deck of cards from an URL
     """
     with get_selenium_browser() as browser:
-        print(curiosa.get_deck_from_url(url, browser))
+        print(curiosa.get_deck_from_url(url, browser, include_maybe))
 
 
 @app.command()
