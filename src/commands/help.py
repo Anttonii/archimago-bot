@@ -1,6 +1,6 @@
 from src.commands.base import BaseCommand
 
-import src.util as util
+from src.discord import boldify, code_blockify
 
 import inspect
 
@@ -33,7 +33,7 @@ class HelpCommand(BaseCommand):
                     if doc_string is None:
                         return f"No help provided for command: {parameters[0]}."
                     else:
-                        return util.code_blockify(doc_string)
+                        return code_blockify(doc_string)
 
             # Could not find explicit help for the given parameter.
             return f"Invalid command: {parameters[0]}"
@@ -46,11 +46,7 @@ class HelpCommand(BaseCommand):
         """
         output = "Archimago provides the following commands:\n\n"
         for command in self.commands:
-            output += (
-                "- "
-                + util.boldify(", ".join(command.get_command_suffix()))
-                + ": "
-            )
+            output += "- " + boldify(", ".join(command.get_command_suffix())) + ": "
 
             doc_string = inspect.getdoc(command)
             if doc_string is None:

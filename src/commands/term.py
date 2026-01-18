@@ -1,6 +1,7 @@
 from src.commands.base import BaseCommand
 
-import src.util as util
+from src.discord import code_blockify
+from src.util import get_url_form
 import src.curiosa as curiosa
 from src.trie import Trie
 
@@ -22,7 +23,7 @@ class TermCommand(BaseCommand):
 
         !term <term> returns an explanation for the given term.
         """
-        term = util.get_url_form(" ".join(parameters))
+        term = get_url_form(" ".join(parameters))
 
         is_found = term in self.terms["term"]
         is_alternative = False
@@ -39,10 +40,10 @@ class TermCommand(BaseCommand):
 
         if not is_alternative and not is_found:
             # Invalid term
-            return util.code_blockify(
+            return code_blockify(
                 curiosa.get_content_suggestion(
                     term, self.pt, "No explanation found for term"
                 )
             )
         else:
-            return util.code_blockify(self.terms["term"][term]["text"])
+            return code_blockify(self.terms["term"][term]["text"])

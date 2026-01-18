@@ -192,9 +192,9 @@ def request_faq(card_name: str):
 
     content = content.contents[0]  # type: ignore
     card_json = json.loads(content)
-    card_data = card_json["props"]["pageProps"]["trpcState"]["json"]["queries"][
-        0
-    ]["state"]["data"]
+    card_data = card_json["props"]["pageProps"]["trpcState"]["json"]["queries"][0][
+        "state"
+    ]["data"]
 
     if card_data is None:
         print(f"Failed to load FAQ for card name: {card_name}, card not found!")
@@ -209,13 +209,13 @@ def get_faq_entries(card_name: str, pt: Trie, cards: dict):
     """
     output = f"FAQ entries found for card: {card_name}\n\n"
     if get_card_entry(card_name, cards) is None:
-        return get_content_suggestion(
-            card_name, pt, "Could not find card by card name"
-        )
+        return get_content_suggestion(card_name, pt, "Could not find card by card name")
 
     faq = request_faq(card_name)
     if isinstance(faq, dict):
-        return f"Retrieving FAQ for card {card_name} failed with reason: {faq['failed']}"
+        return (
+            f"Retrieving FAQ for card {card_name} failed with reason: {faq['failed']}"
+        )
 
     if len(faq) == 0:
         return f"No FAQ entries found for card: {card_name}."
@@ -253,9 +253,7 @@ def request_deck(
     return None
 
 
-def request_deck_from_id(
-    id: str, browser: WebDriver, include_maybe: bool = False
-):
+def request_deck_from_id(id: str, browser: WebDriver, include_maybe: bool = False):
     """
     Appends the base curiosa.io url and passes it into request_deck.
     """
@@ -286,9 +284,7 @@ def get_overlapping_cards_from_str(ids: str, browser: WebDriver) -> str:
     return get_overlapping_cards(ids.split(" "), browser)
 
 
-def get_deck_from_url(
-    url: str, browser: WebDriver, include_maybe: bool = False
-) -> str:
+def get_deck_from_url(url: str, browser: WebDriver, include_maybe: bool = False) -> str:
     output = ""
 
     deck = request_deck(url, browser, include_maybe)
@@ -304,9 +300,7 @@ def get_deck_from_url(
     return output
 
 
-def get_deck_from_id(
-    id: str, browser: WebDriver, include_maybe: bool = False
-) -> str:
+def get_deck_from_id(id: str, browser: WebDriver, include_maybe: bool = False) -> str:
     output = ""
 
     deck = request_deck_from_id(id, browser, include_maybe)
@@ -329,9 +323,7 @@ def get_card_from_name(card_name: str, pt: Trie, cards: dict) -> str:
     card = get_card_entry(card_name, cards)
 
     if card is None:
-        return get_content_suggestion(
-            card_name, pt, "Could not find card by card name"
-        )
+        return get_content_suggestion(card_name, pt, "Could not find card by card name")
     else:
         return prettify_card(card)
 
@@ -340,14 +332,14 @@ def generate_image_url(card_name: str, pt: Trie, cards: dict) -> str:
     """
     Generates an image URL from a given card name.
     """
-    base_url = "https://curiosa.io/_next/image?url=https://d27a44hjr9gen3.cloudfront.net/"
+    base_url = (
+        "https://curiosa.io/_next/image?url=https://d27a44hjr9gen3.cloudfront.net/"
+    )
     extension = "_b_s.png&w=384&q=75"
 
     card = get_card_entry(card_name, cards)
     if card is None:
-        return get_content_suggestion(
-            card_name, pt, "Could not find card by card name"
-        )
+        return get_content_suggestion(card_name, pt, "Could not find card by card name")
 
     card_name = get_url_form(card["name"])
 
