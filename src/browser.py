@@ -3,7 +3,6 @@ import platform
 from typing import Any, Generator
 from contextlib import contextmanager
 
-import chromedriver_autoinstaller
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options as ChromeOptions
 from selenium.webdriver.chrome.service import Service as ChromeService
@@ -17,10 +16,6 @@ def build_browser() -> WebDriver | None:
     Builds a Selenium webdriver instance
     """
     print("Instantiating webdriver instance..")
-
-    # Checks if chrome driver is already in path, if not installs and adds it to path.
-    if "macOS" not in platform.platform():
-        chromedriver_autoinstaller.install()
 
     # The webdriver chromium headless instance
     c_options = ChromeOptions()
@@ -44,7 +39,7 @@ def build_browser() -> WebDriver | None:
             c_options.add_argument("disable-infobars")
             _browser = webdriver.Chrome(
                 options=c_options,
-                service=ChromeService("/snap/bin/chromium.chromedriver"),
+                service=ChromeService("/usr/bin/chromedriver"),
             )
         return _browser
     except ValueError:

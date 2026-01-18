@@ -27,6 +27,13 @@ This repository is built with `uv`. To step `uv`, follow the instructions [here]
 uv sync --all-groups
 ```
 
+Make sure to also have chromium webdriver installed when running from an unix environment:
+
+```sh
+sudo apt update
+sudo apt install chromium-chromedriver
+```
+
 After installing the dependencies, the program will when first run make sure that chromedriver is installed to your path. Alternatively, you can also provide your own instance of a webdriver when interacting with `curiosa.py`.
 
 The program also caches the cards data that can be retrieved from [curiosa.io API](https://api.sorcerytcg.com/). For `card` CLI command to work, first run
