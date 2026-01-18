@@ -1,4 +1,4 @@
-from . import BaseCommand
+from src.commands.base import BaseCommand
 
 import src.util as util
 import src.curiosa as curiosa
@@ -36,11 +36,11 @@ class DeckCommand(BaseCommand):
 
         if len(split_request) > 1:
             received_output = curiosa.get_deck_from_url(
-                parameters[0], False, self.browser
+                parameters[0], self.browser, False
             )
         else:
             received_output = curiosa.get_deck_from_id(
-                parameters[0], False, self.browser
+                parameters[0], self.browser, False
             )
 
         return util.code_blockify(received_output)

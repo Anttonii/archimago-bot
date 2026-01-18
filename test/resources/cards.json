@@ -1,0 +1,106 @@
+[
+    {
+        "name": "Apprentice Wizard",
+        "guardian": {
+            "rarity": "Ordinary",
+            "type": "Minion",
+            "rulesText": "Spellcaster\r\n\r\nGenesis → Draw a spell.",
+            "cost": 3,
+            "attack": 1,
+            "defence": 1,
+            "life": null,
+            "thresholds": {
+                "air": 1,
+                "earth": 0,
+                "fire": 0,
+                "water": 0
+            }
+        },
+        "elements": "Air",
+        "subTypes": "Mortal",
+        "sets": [
+            {
+                "name": "Alpha",
+                "releasedAt": "2023-04-19T00:00:00.000Z",
+                "metadata": {
+                    "rarity": "Ordinary",
+                    "type": "Minion",
+                    "rulesText": "Spellcaster\n\nGenesis → Draw a spell.",
+                    "cost": 3,
+                    "attack": 1,
+                    "defence": 1,
+                    "life": null,
+                    "thresholds": {
+                        "air": 1,
+                        "earth": 0,
+                        "fire": 0,
+                        "water": 0
+                    }
+                },
+                "variants": [
+                    {
+                        "slug": "alp_apprentice_wizard_b_s",
+                        "finish": "Standard",
+                        "product": "Booster",
+                        "artist": "Ossi Hiekkala",
+                        "flavorText": "",
+                        "typeText": "An Ordinary Mortal new to power"
+                    },
+                    {
+                        "slug": "alp_apprentice_wizard_d_s",
+                        "finish": "Standard",
+                        "product": "Preconstructed_Deck",
+                        "artist": "Ossi Hiekkala",
+                        "flavorText": "",
+                        "typeText": "An Ordinary Mortal new to power"
+                    },
+                    {
+                        "slug": "alp_apprentice_wizard_b_f",
+                        "finish": "Foil",
+                        "product": "Booster",
+                        "artist": "Ossi Hiekkala",
+                        "flavorText": "",
+                        "typeText": "An Ordinary Mortal new to power"
+                    }
+                ]
+            },
+            {
+                "name": "Beta",
+                "releasedAt": "2023-11-10T00:00:00.000Z",
+                "metadata": {
+                    "rarity": "Ordinary",
+                    "type": "Minion",
+                    "rulesText": "Spellcaster\r\n\r\nGenesis → Draw a spell.",
+                    "cost": 3,
+                    "attack": 1,
+                    "defence": 1,
+                    "life": null,
+                    "thresholds": {
+                        "air": 1,
+                        "earth": 0,
+                        "fire": 0,
+                        "water": 0
+                    }
+                },
+                "variants": [
+                    {
+                        "slug": "bet_apprentice_wizard_b_s",
+                        "finish": "Standard",
+                        "product": "Booster",
+                        "artist": "Ossi Hiekkala",
+                        "flavorText": "",
+                        "typeText": "An Ordinary Mortal new to power"
+                    },
+                    {
+                        "slug": "bet_apprentice_wizard_b_f",
+                        "finish": "Foil",
+                        "product": "Booster",
+                        "artist": "Ossi Hiekkala",
+                        "flavorText": "",
+                        "typeText": "An Ordinary Mortal new to power"
+                    }
+                ]
+            }
+        ]
+    }
+]

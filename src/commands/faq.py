@@ -1,4 +1,4 @@
-from . import BaseCommand
+from src.commands.base import BaseCommand
 
 from src.trie import Trie
 import src.util as util

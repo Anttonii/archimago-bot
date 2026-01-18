@@ -4,28 +4,34 @@ import random
 import re
 import time
 from asyncio import run as aiorun
+from pathlib import Path
 
 import discord
 from discord import CustomActivity
 from dotenv import load_dotenv
+from selenium.webdriver.remote.webdriver import WebDriver
 
-from src.commands import (
-    BaseCommand,
-    CardCommand,
-    CimgCommand,
-    DeckCommand,
-    FaqCommand,
-    OverlapCommand,
-    TermCommand,
-    RulebookCommand,
-    HelpCommand,
+from src.commands.base import BaseCommand
+from src.commands.card import CardCommand
+from src.commands.cimg import CimgCommand
+from src.commands.deck import DeckCommand
+from src.commands.faq import FaqCommand
+from src.commands.help import HelpCommand
+from src.commands.overlap import OverlapCommand
+from src.commands.rulebook import RulebookCommand
+from src.commands.term import TermCommand
+
+from src.util import (
+    get_all_card_names,
+    get_url_form,
+    code_blockify,
+    load_cards,
+    load_toml,
 )
-
-from . import util
-from .trie import Trie
+from src.trie import Trie
 
 load_dotenv()
-DISCORD_BOT_TOKEN = os.getenv("discord-bot-token")
+DISCORD_BOT_TOKEN = os.getenv("discord-bot-token", "")
 DISCORD_BOT_MODE = os.getenv("discord-bot-mode")
 
 
@@ -38,7 +44,7 @@ class DiscordClient(discord.Client):
 
         super().__init__(intents=intents, **options)
 
-        self._browser = None
+        self._browser: WebDriver | None = None
         self.current_status = ""
         self.commands: list[BaseCommand] = []
 
@@ -79,11 +85,13 @@ class DiscordClient(discord.Client):
 
         if ct_pattern_match:
             # Check if there are more than once matches.
-            all_cards = util.get_all_card_names(self.cards)
+            all_cards = get_all_card_names(self.cards)
 
             all_ref_cards = re.findall(card_image_pattern, content)
-            all_ref_cards = list(map(util.get_url_form, all_ref_cards))
-            all_ref_cards = list(filter(lambda x: x in all_cards, all_ref_cards))
+            all_ref_cards = list(map(get_url_form, all_ref_cards))
+            all_ref_cards = list(
+                filter(lambda x: x in all_cards, all_ref_cards)
+            )
 
             if len(all_ref_cards) == 1:
                 card_name = ct_pattern_match.group(1).split(" ")
@@ -114,7 +122,7 @@ class DiscordClient(discord.Client):
         """
         Handle case where user send a message that is invalid.
         """
-        return f"Invalid command: {util.code_blockify(command)}"
+        return f"Invalid command: {code_blockify(command)}"
 
     async def handle_concurrent(self):
         """
@@ -142,7 +150,8 @@ class DiscordClient(discord.Client):
         random_status = random.choice(
             list(
                 filter(
-                    lambda x: x != self.current_status, self.config["status_messages"]
+                    lambda x: x != self.current_status,
+                    self.config["status_messages"],
                 )
             )
         )
@@ -162,7 +171,8 @@ class DiscordClient(discord.Client):
         """
         self.replies = list(
             filter(
-                lambda x: time.time() - x[2] < self.config["prune_replies_time"],
+                lambda x: time.time() - x[2]
+                < self.config["prune_replies_time"],
                 self.replies,
             )
         )
@@ -245,27 +255,23 @@ class DiscordClient(discord.Client):
         reply = await message.reply(content)
         self.replies.append((message.id, reply.id, time.time()))
 
-    def start_client(self, browser):
+    def start_client(self, browser: WebDriver):
         """
         Starts the discord client and initializes card data.
 
         If card data fails to load, throws an exception.
         """
-        if browser is None:
-            print("Selenium webdriver required for starting discord client.")
-            return
-
         self._browser = browser
 
         try:
-            self.cards = util.load_cards()
-            self.terms = util.load_toml("data/terms.toml")
-            self.config = util.load_toml("data/config.toml")
+            self.cards = load_cards()
+            self.terms = load_toml(Path("data/terms.toml"))
+            self.config = load_toml(Path("data/config.toml"))
         except Exception as e:
             print(f"Failed to initialize discord client due to exception: {e}")
             return
 
-        self.prefixTree = Trie(util.get_all_card_names(self.cards))
+        self.prefixTree = Trie(get_all_card_names(self.cards))
 
         self.commands = list(
             [
@@ -296,5 +302,6 @@ class DiscordClient(discord.Client):
         Closes the discord client instance.
         """
         print("Closing Archimago..")
-        self._browser.close()
+        if self._browser:
+            self._browser.close()
         await self.close()

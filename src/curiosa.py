@@ -1,14 +1,18 @@
 import json
 
+from typing import Any
+
 import requests
 from bs4 import BeautifulSoup
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.remote.webdriver import WebDriver
+from selenium.webdriver.remote.webelement import WebElement
 
-from . import util
-from .trie import Trie
+from src.util import get_card_entry, get_url_form, parse_threshold, parse_sets
+from src.trie import Trie
 
 # The curiosa.io base URL where deck requests are made to.
 curiosa_deck_base_url = "https://curiosa.io/decks/"
@@ -20,7 +24,7 @@ curiosa_card_base_url = "https://curiosa.io/cards/"
 maximum_wait_timeout = 3
 
 
-def prettify_deck(deck) -> str:
+def prettify_deck(deck: dict[str, Any]) -> str:
     """
     Returns a more readable version of a given deck dictionary.
     """
@@ -50,10 +54,18 @@ def prettify_card(card) -> str:
     output = "Name: " + card["name"] + "\n"
 
     guardian = card["guardian"]
-    fields = ["rarity", "type", "rulesText", "cost", "attack", "defence", "life"]
+    fields = [
+        "rarity",
+        "type",
+        "rulesText",
+        "cost",
+        "attack",
+        "defence",
+        "life",
+    ]
 
-    thresholds = util.parse_threshold(guardian)
-    sets = util.parse_sets(card)
+    thresholds = parse_threshold(guardian)
+    sets = parse_sets(card)
 
     for field in fields:
         if guardian[field] == "" or guardian[field] is None:
@@ -130,7 +142,7 @@ def overlap_in_decks(*decks):
     return overlapping
 
 
-def parse_deck_table(tables, include_maybe=False):
+def parse_deck_table(tables: list[WebElement], include_maybe: bool = False):
     """
     Parses the table element returned by selenium into a dictionary that contains all cards.
     """
@@ -171,14 +183,18 @@ def request_faq(card_name: str):
         )
         return {"failed": "err_status_code"}
 
-    soup = BeautifulSoup(req.content, "html.parser")
+    soup = BeautifulSoup(req.content.decode("utf-8"), "html.parser")
 
     # Extract the script content that has the json we are looking for
-    content = soup.find(id="__NEXT_DATA__").contents[0]
+    content = soup.find(id="__NEXT_DATA__").contents[0]  # type: ignore
+    if content is None:
+        return {"failed": "no_content"}
+
+    content = content.contents[0]  # type: ignore
     card_json = json.loads(content)
-    card_data = card_json["props"]["pageProps"]["trpcState"]["json"]["queries"][0][
-        "state"
-    ]["data"]
+    card_data = card_json["props"]["pageProps"]["trpcState"]["json"]["queries"][
+        0
+    ]["state"]["data"]
 
     if card_data is None:
         print(f"Failed to load FAQ for card name: {card_name}, card not found!")
@@ -192,14 +208,14 @@ def get_faq_entries(card_name: str, pt: Trie, cards: dict):
     Makes a request for cards FAQ and returns it in string form if the request is successful
     """
     output = f"FAQ entries found for card: {card_name}\n\n"
-    if util.get_card_entry(card_name, cards) is None:
-        return get_content_suggestion(card_name, pt, "Could not find card by card name")
+    if get_card_entry(card_name, cards) is None:
+        return get_content_suggestion(
+            card_name, pt, "Could not find card by card name"
+        )
 
     faq = request_faq(card_name)
     if isinstance(faq, dict):
-        return (
-            f"Retrieving FAQ for card {card_name} failed with reason: {faq['failed']}"
-        )
+        return f"Retrieving FAQ for card {card_name} failed with reason: {faq['failed']}"
 
     if len(faq) == 0:
         return f"No FAQ entries found for card: {card_name}."
@@ -211,7 +227,9 @@ def get_faq_entries(card_name: str, pt: Trie, cards: dict):
     return output.rstrip()
 
 
-def request_deck(url: str, include_maybe: bool = False, browser=None):
+def request_deck(
+    url: str, browser: WebDriver, include_maybe: bool = False
+) -> dict[str, Any] | None:
     """
     Requests a deck from curiosa.io
     """
@@ -229,26 +247,28 @@ def request_deck(url: str, include_maybe: bool = False, browser=None):
             print(
                 f"Failed to retrieve element containing deck information for URL: {url}"
             )
-            return "Unable to retrieve element containing deck information. Please check the URL."
     except TimeoutException:
         print("Request timed out.")
-        return "Request timed out, unable to retrieve deck for URL: {url}."
+
+    return None
 
 
-def request_deck_from_id(id: str, include_maybe: bool = False, browser=None):
+def request_deck_from_id(
+    id: str, browser: WebDriver, include_maybe: bool = False
+):
     """
     Appends the base curiosa.io url and passes it into request_deck.
     """
-    return request_deck(curiosa_deck_base_url + id, include_maybe, browser)
+    return request_deck(curiosa_deck_base_url + id, browser, include_maybe)
 
 
-def get_overlapping_cards(ids, browser=None) -> str:
+def get_overlapping_cards(ids, browser: WebDriver) -> str:
     output = ""
     decks = []
 
     for i, id in enumerate(ids):
-        print(f"Requesting deck {i+1} with id: {id}")
-        decks.append(request_deck_from_id(id, False, browser))
+        print(f"Requesting deck {i + 1} with id: {id}")
+        decks.append(request_deck_from_id(id, browser, False))
 
     overlapping = overlap_in_decks(*decks)
 
@@ -262,14 +282,16 @@ def get_overlapping_cards(ids, browser=None) -> str:
     return output
 
 
-def get_overlapping_cards_from_str(ids: str, browser=None) -> str:
+def get_overlapping_cards_from_str(ids: str, browser: WebDriver) -> str:
     return get_overlapping_cards(ids.split(" "), browser)
 
 
-def get_deck_from_url(url: str, include_maybe: bool = False, browser=None) -> str:
+def get_deck_from_url(
+    url: str, browser: WebDriver, include_maybe: bool = False
+) -> str:
     output = ""
 
-    deck = request_deck(url, include_maybe, browser)
+    deck = request_deck(url, browser, include_maybe)
     if deck is None:
         output = f"Failed to load deck with url: {url}"
         output = "Check that the url is a valid one."
@@ -282,10 +304,12 @@ def get_deck_from_url(url: str, include_maybe: bool = False, browser=None) -> st
     return output
 
 
-def get_deck_from_id(id: str, include_maybe: bool = False, browser=None) -> str:
+def get_deck_from_id(
+    id: str, browser: WebDriver, include_maybe: bool = False
+) -> str:
     output = ""
 
-    deck = request_deck_from_id(id, include_maybe, browser)
+    deck = request_deck_from_id(id, browser, include_maybe)
     if deck is None:
         output = f"Failed to load deck with id: {id}"
         output = "Check that the id is a valid one."
@@ -302,10 +326,12 @@ def get_card_from_name(card_name: str, pt: Trie, cards: dict) -> str:
     """
     Returns card information from given card name.
     """
-    card = util.get_card_entry(card_name, cards)
+    card = get_card_entry(card_name, cards)
 
     if card is None:
-        return get_content_suggestion(card_name, pt, "Could not find card by card name")
+        return get_content_suggestion(
+            card_name, pt, "Could not find card by card name"
+        )
     else:
         return prettify_card(card)
 
@@ -314,18 +340,18 @@ def generate_image_url(card_name: str, pt: Trie, cards: dict) -> str:
     """
     Generates an image URL from a given card name.
     """
-    base_url = (
-        "https://curiosa.io/_next/image?url=https://d27a44hjr9gen3.cloudfront.net/"
-    )
+    base_url = "https://curiosa.io/_next/image?url=https://d27a44hjr9gen3.cloudfront.net/"
     extension = "_b_s.png&w=384&q=75"
 
-    card = util.get_card_entry(card_name, cards)
+    card = get_card_entry(card_name, cards)
     if card is None:
-        return get_content_suggestion(card_name, pt, "Could not find card by card name")
+        return get_content_suggestion(
+            card_name, pt, "Could not find card by card name"
+        )
 
-    card_name = util.get_url_form(card["name"])
+    card_name = get_url_form(card["name"])
 
-    set = util.parse_sets(card)
+    set = parse_sets(card)
 
     # Take the first set and the first 3 characters converted to lower case
     set_name = set[0:3].lower()

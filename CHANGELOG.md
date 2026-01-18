@@ -2,6 +2,12 @@
 
 Notable changes and additions will be logged into this file.
 
+## \[2.0.0\] - ?
+
+### Changed
+
+- Project now uses `uv` for package managing.
+
 ## \[1.0.8\] - ?
 
 ### Added

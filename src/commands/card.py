@@ -1,4 +1,4 @@
-from . import BaseCommand
+from src.commands.base import BaseCommand
 
 from src.trie import Trie
 import src.util as util
@@ -25,6 +25,8 @@ class CardCommand(BaseCommand):
         card_name = util.get_url_form(" ".join(parameters))
 
         # Safe to assume cards is not none here since we exit if it is
-        received_output = curiosa.get_card_from_name(card_name, self.pt, self.cards)
+        received_output = curiosa.get_card_from_name(
+            card_name, self.pt, self.cards
+        )
 
         return util.code_blockify(received_output)

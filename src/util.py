@@ -2,20 +2,23 @@ import json
 import os
 import platform
 import re
-from typing import Any
+import tomllib
+from pathlib import Path
+from typing import Any, Generator
 
+from contextlib import contextmanager
 import chromedriver_autoinstaller
 import requests
-import toml
 from discord import DMChannel, GroupChannel
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options as ChromeOptions
 from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.firefox.options import Options as FirefoxOptions
 from selenium.webdriver.firefox.service import Service as FirefoxService
+from selenium.webdriver.remote.webdriver import WebDriver
 
 
-def build_browser():
+def build_browser() -> WebDriver | None:
     """
     Builds a Selenium webdriver instance
     """
@@ -29,7 +32,9 @@ def build_browser():
     c_options = ChromeOptions()
     try:
         if "Windows" in platform.platform():
-            c_options.add_argument("--headless=old")
+            c_options.add_argument("--headless")
+            c_options.add_argument("--no-sandbox")
+            c_options.add_argument("--disable-dev-shm-usage")
             _browser = webdriver.Chrome(options=c_options)
         elif "macOS" in platform.platform():
             f_options = FirefoxOptions()
@@ -65,28 +70,32 @@ def download_cards_json(
     print(f"Retrieving sorcery card json file from {api_url}..")
 
     req = requests.get(api_url)
+    req.raise_for_status()
+
     if req.status_code != 200:
         print(f"Failed to get cards API with status code: {req.status_code}")
         return False
 
-    output_path = os.path.join(output, "cards.json")
+    output_path = Path(output) / "cards.json"
     content = req.content.decode("utf-8")
 
     if not is_json(content):
-        print("The requested path did not provide valid json, can not save to file.")
+        print(
+            "The requested path did not provide valid json, can not save to file."
+        )
         return False
 
-    if os.path.exists(output_path):
+    if output_path.exists():
         print("Cards.json already present, overwriting..")
 
-    with open(output_path, "w+") as json_file:
+    with open(output_path, "w+", encoding="utf-8") as json_file:
         json_file.write(content)
 
     print(f"Card data successfully downloaded and saved into: {output_path}!")
     return True
 
 
-def load_cards(json_path: str = "data/cards.json"):
+def load_cards(json_path: str = "data/cards.json") -> dict:
     """
     Loads cards from cards.json into memory for quick retrieval.
     """
@@ -102,7 +111,7 @@ def load_cards(json_path: str = "data/cards.json"):
     return data
 
 
-def load_toml(toml_path: str):
+def load_toml(toml_path: Path) -> dict[str, Any]:
     """
     Parse toml file into a dictionary.
     """
@@ -111,7 +120,8 @@ def load_toml(toml_path: str):
             f"Failed to load toml file from path: {toml_path}, file not found."
         )
 
-    return toml.load(toml_path)
+    with open(toml_path, "rb") as toml_file:
+        return tomllib.load(toml_file)
 
 
 def is_json(value: str) -> bool:
@@ -183,7 +193,7 @@ def parse_sets(card):
     return output[0 : len(output) - 2]
 
 
-def parse_threshold(guardian):
+def parse_threshold(guardian) -> str:
     """
     Parses thresholds object into a more readable form.
 
@@ -199,14 +209,10 @@ def parse_threshold(guardian):
     return output
 
 
-def get_card_entry(card_name: str, cards: dict | None) -> Any | None:
+def get_card_entry(card_name: str, cards: dict = load_cards()) -> Any | None:
     """
     Gets the card object from given card dictionary.
     """
-    # Load cards if a proper dictionary object is not provided
-    if cards is None:
-        cards = load_cards()
-
     assert cards is not None
 
     for card in cards:
@@ -237,24 +243,21 @@ def get_all_card_names(cards: dict | None = None):
     return [get_url_form(card["name"]) for card in cards]
 
 
-def with_selenium(func):
+@contextmanager
+def get_selenium_browser() -> Generator[WebDriver, Any, Any]:
     """
-    A decorator that provides a Selenium webdriver instance for functions requiring it
+    A context manager that provides a Selenium webdriver instance for functions requiring it
     and also makes sure that the webdriver gets closed properly after being used.
     """
+    _browser = build_browser()
 
-    def inner1(*args):
-        _browser = build_browser()
-
-        if _browser is None:
-            print("Failed to instantiate Selenium webdriver instance.")
-            return
-
-        func(*args, _browser)
-
-        _browser.quit()
-
-    return inner1
+    if _browser is None:
+        raise ValueError("Failed to instantiate Selenium webdriver instance.")
+    else:
+        try:
+            yield _browser
+        finally:
+            _browser.quit()
 
 
 def contains_regex(s: str, p: list[str]) -> bool:

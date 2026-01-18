@@ -1,4 +1,4 @@
-from . import BaseCommand
+from src.commands.base import BaseCommand
 
 import src.util as util
 import src.curiosa as curiosa

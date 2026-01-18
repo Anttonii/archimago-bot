@@ -1,30 +1,28 @@
+import json
+
 import pytest
 
 import src.curiosa as curiosa
+from src.trie import Trie
+
+TEST_CARDS_PATH = "test/resources/cards.json"
 
 
-@pytest.fixture
-def test_card():
-    return {
-        "name": "abundance",
-        "sets": [{"name": "alpha"}, {"name": "beta"}],
-        "guardian": {
-            "thresholds": {
-                "air": 0,
-                "earth": 0,
-                "fire": 0,
-                "water": 2,
-            }
-        },
-    }
+@pytest.fixture(scope="module")
+def get_cards():
+    """Loads test cards from json file"""
+
+    with open(TEST_CARDS_PATH, "r", encoding="utf-8") as f:
+        cards = json.load(f)
+
+    return cards
 
 
-def test_generate_image_url(mocker, test_card):
+def test_generate_image_url(get_cards):
     """Test that generate image url provides correct img urls"""
-    # Mock get_card_entry
-    mocker.patch("src.util.get_card_entry", return_value=test_card)
+    apprentice_wizard_url = "https://curiosa.io/_next/image?url=https://d27a44hjr9gen3.cloudfront.net/alp/apprentice_wizard_b_s.png&w=384&q=75"
+    gen_apprentice_wizard_url = curiosa.generate_image_url(
+        "apprentice wizard", Trie(), get_cards
+    )
 
-    abundance_url = "https://curiosa.io/_next/image?url=https://d27a44hjr9gen3.cloudfront.net/alp/abundance_b_s.png&w=384&q=75"
-    gen_abundance_url = curiosa.generate_image_url("abundance", None, None)
-
-    assert abundance_url == gen_abundance_url
+    assert apprentice_wizard_url == gen_apprentice_wizard_url

@@ -1,4 +1,4 @@
-from . import BaseCommand
+from src.commands.base import BaseCommand
 
 CURIOSA_RULEBOOK_URL = (
     "https://drive.google.com/file/d/1sgQo0xf0N2teIR0zlyl91g9j6LVncZnr/view"

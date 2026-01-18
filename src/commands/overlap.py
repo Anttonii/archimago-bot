@@ -1,4 +1,4 @@
-from . import BaseCommand
+from src.commands.base import BaseCommand
 
 import src.util as util
 import src.curiosa as curiosa
@@ -29,6 +29,8 @@ class OverlapCommand(BaseCommand):
         if len(parameters) > 3:
             parameters = parameters[0:3]
 
-        received_output = curiosa.get_overlapping_cards(parameters, self.browser)
+        received_output = curiosa.get_overlapping_cards(
+            parameters, self.browser
+        )
 
         return util.code_blockify(received_output)

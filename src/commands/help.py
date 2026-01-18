@@ -1,4 +1,4 @@
-from . import BaseCommand
+from src.commands.base import BaseCommand
 
 import src.util as util
 
@@ -47,7 +47,9 @@ class HelpCommand(BaseCommand):
         output = "Archimago provides the following commands:\n\n"
         for command in self.commands:
             output += (
-                "- " + util.boldify(", ".join(command.get_command_suffix())) + ": "
+                "- "
+                + util.boldify(", ".join(command.get_command_suffix()))
+                + ": "
             )
 
             doc_string = inspect.getdoc(command)
